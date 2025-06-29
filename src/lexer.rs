@@ -137,7 +137,14 @@ impl Lexer {
             ),
             Some('(') => Token::new(TokenType::LeftParen, "(".to_string(), self.line, self.col),
             Some(')') => Token::new(TokenType::RightParen, ")".to_string(), self.line, self.col),
-            Some('!') => Token::new(TokenType::Exclamation, "!".to_string(), self.line, self.col),
+            Some('!') => {
+                let next_char = self.peek_char(1);
+                if next_char == '[' {
+                    Token::new(TokenType::Exclamation, "!".to_string(), self.line, self.col)
+                } else {
+                    Token::new(TokenType::Text, "!".to_string(), 0, 0)
+                }
+            }
             None => Token::new(TokenType::EOF, "".to_string(), self.line, self.col),
             _ => {
                 let start_col = self.col;
@@ -618,22 +625,30 @@ let x = 15;
 
     #[test]
     fn test_image_tokenizing() {
-        let input = "![Tiger](http://example.com/tiger.jpg)";
+        let input = "![Tiger](http://example.com/tiger.jpg!)";
         let mut lexer = Lexer::from(input);
 
         let expected = vec![
-            TokenType::Exclamation,
-            TokenType::LeftBracket,
-            TokenType::Text,
-            TokenType::RightBracket,
-            TokenType::LeftParen,
-            TokenType::Text,
-            TokenType::RightParen,
-            TokenType::EOF,
+            Token::new(TokenType::Exclamation, "!".to_string(), 0, 0),
+            Token::new(TokenType::LeftBracket, "[".to_string(), 0, 0),
+            Token::new(TokenType::Text, "Tiger".to_string(), 0, 0),
+            Token::new(TokenType::RightBracket, "]".to_string(), 0, 0),
+            Token::new(TokenType::LeftParen, "(".to_string(), 0, 0),
+            Token::new(
+                TokenType::Text,
+                "http://example.com/tiger.jpg".to_string(),
+                0,
+                0,
+            ),
+            Token::new(TokenType::Text, "!".to_string(), 0, 0),
+            Token::new(TokenType::RightParen, ")".to_string(), 0, 0),
+            Token::new(TokenType::EOF, "".to_string(), 0, 0),
         ];
 
-        for token_type in expected {
-            assert_eq!(lexer.next_token().token_type, token_type);
+        for token in expected {
+            let next_token = lexer.next_token();
+            assert_eq!(next_token.token_type, token.token_type);
+            assert_eq!(next_token.literal, token.literal);
         }
     }
 
