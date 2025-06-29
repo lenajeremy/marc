@@ -213,4 +213,40 @@ mod tests {
             assert_eq!(token.literal, expected_token.literal);
         }
     }
+
+    #[test]
+    fn test_tokenize_backticks() {
+        //In **Golang** you say `fmtPrintln`
+        //In *Rust*, you say `println`";
+        let input = "\
+In Javascript you say `consolelog`
+In **Python** you say `print`";
+
+        let mut lexer = Lexer::from(input);
+        let expected_tokens = vec![
+            Token::new(TokenType::Text, "In Javascript you say".to_string()),
+            Token::new(TokenType::Backtick, "`".to_string()),
+            Token::new(TokenType::Text, "consolelog".to_string()),
+            Token::new(TokenType::Backtick, "`".to_string()),
+            Token::new(TokenType::NewLine, "\n".to_string()),
+            Token::new(TokenType::Text, "In".to_string()),
+            Token::new(TokenType::DoubleAsterisk, "**".to_string()),
+            Token::new(TokenType::Text, "Python".to_string()),
+            Token::new(TokenType::DoubleAsterisk, "**".to_string()),
+            Token::new(TokenType::Text, "you say".to_string()),
+            Token::new(TokenType::Backtick, "`".to_string()),
+            Token::new(TokenType::Text, "print".to_string()),
+            Token::new(TokenType::Backtick, "`".to_string()),
+        ];
+
+        for expected_token in expected_tokens {
+            let token = lexer.next_token();
+            println!(
+                "expected: {:?}, got: {:?}",
+                expected_token.token_type, token.token_type
+            );
+            assert_eq!(token.token_type, expected_token.token_type);
+            assert_eq!(token.literal, expected_token.literal);
+        }
+    }
 }

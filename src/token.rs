@@ -9,6 +9,8 @@ pub enum TokenType {
     Asterisk,
     DoubleAsterisk,
     GreaterThan,
+    Backtick,
+    TripleBacktick,
 
     Text,
     NewLine,
@@ -32,6 +34,9 @@ impl TokenType {
             Self::DoubleAsterisk => "**".to_string(),
             Self::GreaterThan => ">".to_string(),
             Self::NewLine => "\n".to_string(),
+
+            Self::Backtick => "`".to_string(),
+            Self::TripleBacktick => "```".to_string(),
 
             Self::Invalid => "INVALID".to_string(),
             Self::EOF => "EOF".to_string(),
