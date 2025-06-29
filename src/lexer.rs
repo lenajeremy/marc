@@ -18,7 +18,7 @@ impl Lexer {
             position: 0,
             read_position: 0,
             line: if input.len() == 0 { 0 } else { 1 },
-            col: 0,
+            col: if input.len() == 0 { 0 } else { 1 },
             ch: None,
         };
 
@@ -43,12 +43,12 @@ impl Lexer {
                 }
 
                 let heading = match total_pounds {
-                    1 => Token::new(TokenType::H1, "#".repeat(total_pounds)),
-                    2 => Token::new(TokenType::H2, "#".repeat(total_pounds)),
-                    3 => Token::new(TokenType::H3, "#".repeat(total_pounds)),
-                    4 => Token::new(TokenType::H4, "#".repeat(total_pounds)),
-                    5 => Token::new(TokenType::H5, "#".repeat(total_pounds)),
-                    6 => Token::new(TokenType::H6, "#".repeat(total_pounds)),
+                    1 => Token::new(TokenType::H1, "#".repeat(total_pounds), self.line, self.col),
+                    2 => Token::new(TokenType::H2, "#".repeat(total_pounds), self.line, self.col),
+                    3 => Token::new(TokenType::H3, "#".repeat(total_pounds), self.line, self.col),
+                    4 => Token::new(TokenType::H4, "#".repeat(total_pounds), self.line, self.col),
+                    5 => Token::new(TokenType::H5, "#".repeat(total_pounds), self.line, self.col),
+                    6 => Token::new(TokenType::H6, "#".repeat(total_pounds), self.line, self.col),
                     _ => {
                         // this should never happen so long the expected condition is that
                         // total_pounds <= 6 is valid (which our while loop ensure) and so the ideal thing to do here is to
@@ -65,14 +65,19 @@ impl Lexer {
 
                 return heading;
             }
-            Some('\n') => Token::new(TokenType::NewLine, "\n".to_string()),
+            Some('\n') => Token::new(TokenType::NewLine, "\n".to_string(), self.line, self.col),
             Some('*') => {
                 let next_char = self.peek_char(1);
                 if next_char == '*' {
                     self.read_char();
-                    Token::new(TokenType::DoubleAsterisk, "**".to_string())
+                    Token::new(
+                        TokenType::DoubleAsterisk,
+                        "**".to_string(),
+                        self.line,
+                        self.col,
+                    )
                 } else {
-                    Token::new(TokenType::Asterisk, "*".to_string())
+                    Token::new(TokenType::Asterisk, "*".to_string(), self.line, self.col)
                 }
             }
             Some('`') => {
@@ -80,23 +85,38 @@ impl Lexer {
                 if next == '`' && self.peek_char(2) == '`' {
                     self.read_char();
                     self.read_char();
-                    Token::new(TokenType::TripleBacktick, "```".to_string())
+                    Token::new(
+                        TokenType::TripleBacktick,
+                        "```".to_string(),
+                        self.line,
+                        self.col,
+                    )
                 } else {
-                    Token::new(TokenType::Backtick, "`".to_string())
+                    Token::new(TokenType::Backtick, "`".to_string(), self.line, self.col)
                 }
             }
-            Some('[') => Token::new(TokenType::LeftBracket, "[".to_string()),
-            Some(']') => Token::new(TokenType::RightBracket, "]".to_string()),
-            Some('(') => Token::new(TokenType::LeftParen, "(".to_string()),
-            Some(')') => Token::new(TokenType::RightParen, ")".to_string()),
-            Some('!') => Token::new(TokenType::Exclamation, "!".to_string()),
-            None => Token::new(TokenType::EOF, "".to_string()),
+            Some('[') => Token::new(TokenType::LeftBracket, "[".to_string(), self.line, self.col),
+            Some(']') => Token::new(
+                TokenType::RightBracket,
+                "]".to_string(),
+                self.line,
+                self.col,
+            ),
+            Some('(') => Token::new(TokenType::LeftParen, "(".to_string(), self.line, self.col),
+            Some(')') => Token::new(TokenType::RightParen, ")".to_string(), self.line, self.col),
+            Some('!') => Token::new(TokenType::Exclamation, "!".to_string(), self.line, self.col),
+            None => Token::new(TokenType::EOF, "".to_string(), self.line, self.col),
             _ => {
                 if utils::is_alphanumeric(self.ch) {
                     let word = self.read_text();
-                    return Token::new(TokenType::Text, word);
+                    return Token::new(TokenType::Text, word, self.line, self.col);
                 } else {
-                    Token::new(TokenType::Invalid, "INVALID".to_string())
+                    Token::new(
+                        TokenType::Invalid,
+                        "INVALID".to_string(),
+                        self.line,
+                        self.col,
+                    )
                 }
             }
         };
@@ -105,7 +125,7 @@ impl Lexer {
         token
     }
 
-    fn read_text(&mut self) -> String {
+    fn read_word(&mut self) -> String {
         let start = self.position;
 
         while utils::is_alphanumeric(self.ch) || self.ch == Some(' ') {
@@ -159,19 +179,31 @@ mod tests {
         let mut lexer = Lexer::from(input);
 
         let expected_tokens = vec![
-            Token::new(TokenType::H2, "##".to_string()),
-            Token::new(TokenType::Text, "Hello World".to_string()),
-            Token::new(TokenType::NewLine, "\n".to_string()),
-            Token::new(TokenType::H1, "#".to_string()),
-            Token::new(TokenType::Text, "This is Jeremiah".to_string()),
-            Token::new(TokenType::NewLine, "\n".to_string()),
-            Token::new(TokenType::H1, "#".to_string()),
+            Token::new(TokenType::H2, "##".to_string(), lexer.line, lexer.col),
+            Token::new(
+                TokenType::Text,
+                "Hello World".to_string(),
+                lexer.line,
+                lexer.col,
+            ),
+            Token::new(TokenType::NewLine, "\n".to_string(), lexer.line, lexer.col),
+            Token::new(TokenType::H1, "#".to_string(), lexer.line, lexer.col),
+            Token::new(
+                TokenType::Text,
+                "This is Jeremiah".to_string(),
+                lexer.line,
+                lexer.col,
+            ),
+            Token::new(TokenType::NewLine, "\n".to_string(), lexer.line, lexer.col),
+            Token::new(TokenType::H1, "#".to_string(), lexer.line, lexer.col),
             Token::new(
                 TokenType::Text,
                 "And this is a very important heading".to_string(),
+                lexer.line,
+                lexer.col,
             ),
-            Token::new(TokenType::NewLine, "\n".to_string()),
-            Token::new(TokenType::EOF, "".to_string()),
+            Token::new(TokenType::NewLine, "\n".to_string(), lexer.line, lexer.col),
+            Token::new(TokenType::EOF, "".to_string(), lexer.line, lexer.col),
         ];
 
         for expected_token in expected_tokens {
@@ -192,30 +224,55 @@ mod tests {
         let mut lexer = Lexer::from(input);
 
         let expected_tokens = vec![
-            Token::new(TokenType::DoubleAsterisk, "**".to_string()),
-            Token::new(TokenType::Text, "bold".to_string()),
-            Token::new(TokenType::DoubleAsterisk, "**".to_string()),
-            Token::new(TokenType::NewLine, "\n".to_string()),
-            Token::new(TokenType::Asterisk, "*".to_string()),
-            Token::new(TokenType::Text, "italic".to_string()),
-            Token::new(TokenType::Asterisk, "*".to_string()),
-            Token::new(TokenType::NewLine, "\n".to_string()),
-            Token::new(TokenType::DoubleAsterisk, "**".to_string()),
-            Token::new(TokenType::Asterisk, "*".to_string()),
-            Token::new(TokenType::Text, "bolditalic".to_string()),
+            Token::new(
+                TokenType::DoubleAsterisk,
+                "**".to_string(),
+                lexer.line,
+                lexer.col,
+            ),
+            Token::new(TokenType::Text, "bold".to_string(), lexer.line, lexer.col),
+            Token::new(
+                TokenType::DoubleAsterisk,
+                "**".to_string(),
+                lexer.line,
+                lexer.col,
+            ),
+            Token::new(TokenType::NewLine, "\n".to_string(), lexer.line, lexer.col),
+            Token::new(TokenType::Asterisk, "*".to_string(), lexer.line, lexer.col),
+            Token::new(TokenType::Text, "italic".to_string(), lexer.line, lexer.col),
+            Token::new(TokenType::Asterisk, "*".to_string(), lexer.line, lexer.col),
+            Token::new(TokenType::NewLine, "\n".to_string(), lexer.line, lexer.col),
+            Token::new(
+                TokenType::DoubleAsterisk,
+                "**".to_string(),
+                lexer.line,
+                lexer.col,
+            ),
+            Token::new(TokenType::Asterisk, "*".to_string(), lexer.line, lexer.col),
+            Token::new(
+                TokenType::Text,
+                "bolditalic".to_string(),
+                lexer.line,
+                lexer.col,
+            ),
             // TODO:
             // pretty sure the asterisk is supposed to come before the double asterisk
             // but that'd make for a very challenging problem to solve, I'll come back
             // to see if it affects the correctness of the code.
             // I think it would but, fingers' crossed.
-            Token::new(TokenType::DoubleAsterisk, "**".to_string()),
-            Token::new(TokenType::Asterisk, "*".to_string()),
-            Token::new(TokenType::NewLine, "\n".to_string()),
-            Token::new(TokenType::Text, "5".to_string()),
-            Token::new(TokenType::Asterisk, "*".to_string()),
-            Token::new(TokenType::Text, "5".to_string()),
-            Token::new(TokenType::NewLine, "\n".to_string()),
-            Token::new(TokenType::EOF, "".to_string()),
+            Token::new(
+                TokenType::DoubleAsterisk,
+                "**".to_string(),
+                lexer.line,
+                lexer.col,
+            ),
+            Token::new(TokenType::Asterisk, "*".to_string(), lexer.line, lexer.col),
+            Token::new(TokenType::NewLine, "\n".to_string(), lexer.line, lexer.col),
+            Token::new(TokenType::Text, "5".to_string(), lexer.line, lexer.col),
+            Token::new(TokenType::Asterisk, "*".to_string(), lexer.line, lexer.col),
+            Token::new(TokenType::Text, "5".to_string(), lexer.line, lexer.col),
+            Token::new(TokenType::NewLine, "\n".to_string(), lexer.line, lexer.col),
+            Token::new(TokenType::EOF, "".to_string(), lexer.line, lexer.col),
         ];
 
         for expected_token in expected_tokens {
@@ -239,38 +296,93 @@ In *Rust* you say `println`";
 
         let mut lexer = Lexer::from(input);
         let expected_tokens = vec![
-            Token::new(TokenType::Text, "In Javascript you say ".to_string()),
-            Token::new(TokenType::Backtick, "`".to_string()),
-            Token::new(TokenType::Text, "consolelog".to_string()),
-            Token::new(TokenType::Backtick, "`".to_string()),
-            Token::new(TokenType::NewLine, "\n".to_string()),
-            Token::new(TokenType::Text, "In ".to_string()),
-            Token::new(TokenType::DoubleAsterisk, "**".to_string()),
-            Token::new(TokenType::Text, "Python".to_string()),
-            Token::new(TokenType::DoubleAsterisk, "**".to_string()),
-            Token::new(TokenType::Text, "you say ".to_string()),
-            Token::new(TokenType::Backtick, "`".to_string()),
-            Token::new(TokenType::Text, "print".to_string()),
-            Token::new(TokenType::Backtick, "`".to_string()),
-            Token::new(TokenType::NewLine, "\n".to_string()),
-            Token::new(TokenType::Text, "In ".to_string()),
-            Token::new(TokenType::DoubleAsterisk, "**".to_string()),
-            Token::new(TokenType::Text, "Golang".to_string()),
-            Token::new(TokenType::DoubleAsterisk, "**".to_string()),
-            Token::new(TokenType::Text, "you say ".to_string()),
-            Token::new(TokenType::Backtick, "`".to_string()),
-            Token::new(TokenType::Text, "fmtPrintln".to_string()),
-            Token::new(TokenType::Backtick, "`".to_string()),
-            Token::new(TokenType::NewLine, "\n".to_string()),
-            Token::new(TokenType::Text, "In ".to_string()),
-            Token::new(TokenType::Asterisk, "*".to_string()),
-            Token::new(TokenType::Text, "Rust".to_string()),
-            Token::new(TokenType::Asterisk, "*".to_string()),
-            Token::new(TokenType::Text, "you say ".to_string()),
-            Token::new(TokenType::Backtick, "`".to_string()),
-            Token::new(TokenType::Text, "println".to_string()),
-            Token::new(TokenType::Backtick, "`".to_string()),
-            Token::new(TokenType::EOF, "".to_string()),
+            Token::new(
+                TokenType::Text,
+                "In Javascript you say ".to_string(),
+                lexer.line,
+                lexer.col,
+            ),
+            Token::new(TokenType::Backtick, "`".to_string(), lexer.line, lexer.col),
+            Token::new(
+                TokenType::Text,
+                "consolelog".to_string(),
+                lexer.line,
+                lexer.col,
+            ),
+            Token::new(TokenType::Backtick, "`".to_string(), lexer.line, lexer.col),
+            Token::new(TokenType::NewLine, "\n".to_string(), lexer.line, lexer.col),
+            Token::new(TokenType::Text, "In ".to_string(), lexer.line, lexer.col),
+            Token::new(
+                TokenType::DoubleAsterisk,
+                "**".to_string(),
+                lexer.line,
+                lexer.col,
+            ),
+            Token::new(TokenType::Text, "Python".to_string(), lexer.line, lexer.col),
+            Token::new(
+                TokenType::DoubleAsterisk,
+                "**".to_string(),
+                lexer.line,
+                lexer.col,
+            ),
+            Token::new(
+                TokenType::Text,
+                "you say ".to_string(),
+                lexer.line,
+                lexer.col,
+            ),
+            Token::new(TokenType::Backtick, "`".to_string(), lexer.line, lexer.col),
+            Token::new(TokenType::Text, "print".to_string(), lexer.line, lexer.col),
+            Token::new(TokenType::Backtick, "`".to_string(), lexer.line, lexer.col),
+            Token::new(TokenType::NewLine, "\n".to_string(), lexer.line, lexer.col),
+            Token::new(TokenType::Text, "In ".to_string(), lexer.line, lexer.col),
+            Token::new(
+                TokenType::DoubleAsterisk,
+                "**".to_string(),
+                lexer.line,
+                lexer.col,
+            ),
+            Token::new(TokenType::Text, "Golang".to_string(), lexer.line, lexer.col),
+            Token::new(
+                TokenType::DoubleAsterisk,
+                "**".to_string(),
+                lexer.line,
+                lexer.col,
+            ),
+            Token::new(
+                TokenType::Text,
+                "you say ".to_string(),
+                lexer.line,
+                lexer.col,
+            ),
+            Token::new(TokenType::Backtick, "`".to_string(), lexer.line, lexer.col),
+            Token::new(
+                TokenType::Text,
+                "fmtPrintln".to_string(),
+                lexer.line,
+                lexer.col,
+            ),
+            Token::new(TokenType::Backtick, "`".to_string(), lexer.line, lexer.col),
+            Token::new(TokenType::NewLine, "\n".to_string(), lexer.line, lexer.col),
+            Token::new(TokenType::Text, "In ".to_string(), lexer.line, lexer.col),
+            Token::new(TokenType::Asterisk, "*".to_string(), lexer.line, lexer.col),
+            Token::new(TokenType::Text, "Rust".to_string(), lexer.line, lexer.col),
+            Token::new(TokenType::Asterisk, "*".to_string(), lexer.line, lexer.col),
+            Token::new(
+                TokenType::Text,
+                "you say ".to_string(),
+                lexer.line,
+                lexer.col,
+            ),
+            Token::new(TokenType::Backtick, "`".to_string(), lexer.line, lexer.col),
+            Token::new(
+                TokenType::Text,
+                "println".to_string(),
+                lexer.line,
+                lexer.col,
+            ),
+            Token::new(TokenType::Backtick, "`".to_string(), lexer.line, lexer.col),
+            Token::new(TokenType::EOF, "".to_string(), lexer.line, lexer.col),
         ];
 
         for expected_token in expected_tokens {
@@ -292,16 +404,33 @@ consolelogHello World everyone
 ```";
         let mut lexer = Lexer::from(input);
         let expected_tokens = vec![
-            Token::new(TokenType::TripleBacktick, "```".to_string()),
-            Token::new(TokenType::Text, "javascript".to_string()),
-            Token::new(TokenType::NewLine, "\n".to_string()),
+            Token::new(
+                TokenType::TripleBacktick,
+                "```".to_string(),
+                lexer.line,
+                lexer.col,
+            ),
+            Token::new(
+                TokenType::Text,
+                "javascript".to_string(),
+                lexer.line,
+                lexer.col,
+            ),
+            Token::new(TokenType::NewLine, "\n".to_string(), lexer.line, lexer.col),
             Token::new(
                 TokenType::Text,
                 "consolelogHello World everyone".to_string(),
+                lexer.line,
+                lexer.col,
             ),
-            Token::new(TokenType::NewLine, "\n".to_string()),
-            Token::new(TokenType::TripleBacktick, "```".to_string()),
-            Token::new(TokenType::EOF, "".to_string()),
+            Token::new(TokenType::NewLine, "\n".to_string(), lexer.line, lexer.col),
+            Token::new(
+                TokenType::TripleBacktick,
+                "```".to_string(),
+                lexer.line,
+                lexer.col,
+            ),
+            Token::new(TokenType::EOF, "".to_string(), lexer.line, lexer.col),
         ];
 
         for expected_token in expected_tokens {
@@ -323,23 +452,63 @@ consolelogHello World everyone
 ```";
         let mut lexer = Lexer::from(input);
         let expected_tokens = vec![
-            Token::new(TokenType::LeftBracket, "[".to_string()),
-            Token::new(TokenType::Text, "text".to_string()),
-            Token::new(TokenType::RightBracket, "]".to_string()),
-            Token::new(TokenType::LeftParen, "(".to_string()),
-            Token::new(TokenType::Text, "url".to_string()),
-            Token::new(TokenType::RightParen, ")".to_string()),
-            Token::new(TokenType::NewLine, "\n".to_string()),
-            Token::new(TokenType::Exclamation, "!".to_string()),
-            Token::new(TokenType::LeftBracket, "[".to_string()),
-            Token::new(TokenType::Text, "text".to_string()),
-            Token::new(TokenType::RightBracket, "]".to_string()),
-            Token::new(TokenType::LeftParen, "(".to_string()),
-            Token::new(TokenType::Text, "url".to_string()),
-            Token::new(TokenType::RightParen, ")".to_string()),
-            Token::new(TokenType::NewLine, "\n".to_string()),
-            Token::new(TokenType::TripleBacktick, "```".to_string()),
-            Token::new(TokenType::EOF, "".to_string()),
+            Token::new(
+                TokenType::LeftBracket,
+                "[".to_string(),
+                lexer.line,
+                lexer.col,
+            ),
+            Token::new(TokenType::Text, "text".to_string(), lexer.line, lexer.col),
+            Token::new(
+                TokenType::RightBracket,
+                "]".to_string(),
+                lexer.line,
+                lexer.col,
+            ),
+            Token::new(TokenType::LeftParen, "(".to_string(), lexer.line, lexer.col),
+            Token::new(TokenType::Text, "url".to_string(), lexer.line, lexer.col),
+            Token::new(
+                TokenType::RightParen,
+                ")".to_string(),
+                lexer.line,
+                lexer.col,
+            ),
+            Token::new(TokenType::NewLine, "\n".to_string(), lexer.line, lexer.col),
+            Token::new(
+                TokenType::Exclamation,
+                "!".to_string(),
+                lexer.line,
+                lexer.col,
+            ),
+            Token::new(
+                TokenType::LeftBracket,
+                "[".to_string(),
+                lexer.line,
+                lexer.col,
+            ),
+            Token::new(TokenType::Text, "text".to_string(), lexer.line, lexer.col),
+            Token::new(
+                TokenType::RightBracket,
+                "]".to_string(),
+                lexer.line,
+                lexer.col,
+            ),
+            Token::new(TokenType::LeftParen, "(".to_string(), lexer.line, lexer.col),
+            Token::new(TokenType::Text, "url".to_string(), lexer.line, lexer.col),
+            Token::new(
+                TokenType::RightParen,
+                ")".to_string(),
+                lexer.line,
+                lexer.col,
+            ),
+            Token::new(TokenType::NewLine, "\n".to_string(), lexer.line, lexer.col),
+            Token::new(
+                TokenType::TripleBacktick,
+                "```".to_string(),
+                lexer.line,
+                lexer.col,
+            ),
+            Token::new(TokenType::EOF, "".to_string(), lexer.line, lexer.col),
         ];
 
         for expected_token in expected_tokens {

@@ -60,13 +60,22 @@ impl TokenType {
 pub struct Token {
     pub literal: String,
     pub token_type: TokenType,
+    start_line: usize,
+    start_col: usize,
 }
 
 impl Token {
-    pub fn new(token_type: TokenType, literal: String) -> Token {
+    pub fn new(
+        token_type: TokenType,
+        literal: String,
+        start_line: usize,
+        start_col: usize,
+    ) -> Token {
         Token {
             token_type,
             literal,
+            start_line,
+            start_col,
         }
     }
 }
