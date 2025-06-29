@@ -1,4 +1,4 @@
-use crate::token::*;
+use crate::{token::*, utils};
 use std::cmp::min;
 
 #[derive(Debug)]
@@ -8,7 +8,7 @@ struct Lexer {
     read_position: usize,
     line: usize,
     col: usize,
-    ch: char,
+    ch: Option<char>,
 }
 
 impl Lexer {
@@ -19,22 +19,25 @@ impl Lexer {
             read_position: 0,
             line: if input.len() == 0 { 0 } else { 1 },
             col: 0,
-            ch: '\0',
+            ch: None,
         };
 
         lexer.read_char();
         lexer
     }
 
+    fn read_word() {}
+
     pub fn eat_whitespace(&mut self) {
-        while self.ch == ' ' {
+        while self.ch == Some(' ') {
             self.read_char();
         }
     }
 
     pub fn next_token(&mut self) -> Token {
+        self.eat_whitespace();
         let token = match self.ch {
-            '#' => {
+            Some('#') => {
                 let mut total_pounds = 1;
 
                 while self.peek_char(total_pounds - 1) == '#' && total_pounds < 6 {
@@ -64,12 +67,30 @@ impl Lexer {
 
                 return heading;
             }
-            '\n' => Token::new(TokenType::NewLine, "\n".to_string()),
-            _ => Token::new(TokenType::Invalid, "INVALID".to_string()),
+            Some('\n') => Token::new(TokenType::NewLine, "\n".to_string()),
+            None => Token::new(TokenType::EOF, "".to_string()),
+            _ => {
+                if utils::is_alphanumeric(self.ch) {
+                    let word = self.read_text();
+                    Token::new(TokenType::Text, word)
+                } else {
+                    Token::new(TokenType::Invalid, "INVALID".to_string())
+                }
+            }
         };
 
         self.read_char();
         token
+    }
+
+    fn read_text(&mut self) -> String {
+        let start = self.position;
+
+        while utils::is_alphanumeric(self.ch) || self.ch == Some(' ') {
+            self.read_char();
+        }
+
+        self.src[start..self.position].to_string()
     }
 
     fn peek_char(&self, distance: usize) -> char {
@@ -83,14 +104,15 @@ impl Lexer {
     }
 
     pub fn read_char(&mut self) {
-        self.ch = match self.src[self.read_position..].chars().next() {
-            Some(x) => x,
-            None => '\0',
-        };
+        self.ch = self.src[self.read_position..].chars().next();
         self.position = self.read_position;
-        self.read_position = min(self.read_position + self.ch.len_utf8(), self.src.len());
+        if let Some(x) = self.ch {
+            self.read_position = min(self.read_position + x.len_utf8(), self.src.len());
+        } else {
+            self.read_position = min(self.read_position, self.src.len());
+        }
 
-        if self.ch == '\n' {
+        if self.ch == Some('\n') {
             self.line += 1;
             self.col = 1;
         } else {
@@ -114,10 +136,8 @@ mod tests {
         let expected_tokens = vec![
             Token::new(TokenType::H2, "##".to_string()),
             Token::new(TokenType::Text, "Hello World".to_string()),
-            Token::new(TokenType::NewLine, "\n".to_string()),
             Token::new(TokenType::H1, "#".to_string()),
             Token::new(TokenType::Text, "This is Jeremiah".to_string()),
-            Token::new(TokenType::NewLine, "\n".to_string()),
             Token::new(TokenType::H1, "#".to_string()),
             Token::new(
                 TokenType::Text,
