@@ -6,11 +6,17 @@ pub enum TokenType {
     H4,
     H5,
     H6,
+
     Asterisk,
     DoubleAsterisk,
     GreaterThan,
     Backtick,
     TripleBacktick,
+    LeftBracket,
+    RightBracket,
+    LeftParen,
+    RightParen,
+    Exclamation,
 
     Text,
     NewLine,
@@ -34,6 +40,12 @@ impl TokenType {
             Self::DoubleAsterisk => "**".to_string(),
             Self::GreaterThan => ">".to_string(),
             Self::NewLine => "\n".to_string(),
+
+            Self::LeftBracket => "[".to_string(),
+            Self::RightBracket => "]".to_string(),
+            Self::LeftParen => "(".to_string(),
+            Self::RightParen => ")".to_string(),
+            Self::Exclamation => "!".to_string(),
 
             Self::Backtick => "`".to_string(),
             Self::TripleBacktick => "```".to_string(),

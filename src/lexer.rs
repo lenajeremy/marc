@@ -85,6 +85,11 @@ impl Lexer {
                     Token::new(TokenType::Backtick, "`".to_string())
                 }
             }
+            Some('[') => Token::new(TokenType::LeftBracket, "[".to_string()),
+            Some(']') => Token::new(TokenType::RightBracket, "]".to_string()),
+            Some('(') => Token::new(TokenType::LeftParen, "(".to_string()),
+            Some(')') => Token::new(TokenType::RightParen, ")".to_string()),
+            Some('!') => Token::new(TokenType::Exclamation, "!".to_string()),
             None => Token::new(TokenType::EOF, "".to_string()),
             _ => {
                 if utils::is_alphanumeric(self.ch) {
@@ -294,6 +299,44 @@ consolelogHello World everyone
                 TokenType::Text,
                 "consolelogHello World everyone".to_string(),
             ),
+            Token::new(TokenType::NewLine, "\n".to_string()),
+            Token::new(TokenType::TripleBacktick, "```".to_string()),
+            Token::new(TokenType::EOF, "".to_string()),
+        ];
+
+        for expected_token in expected_tokens {
+            let token = lexer.next_token();
+            println!(
+                "expected: {:?}, got: {:?}",
+                expected_token.token_type, token.token_type
+            );
+            assert_eq!(token.token_type, expected_token.token_type);
+            assert_eq!(token.literal, expected_token.literal);
+        }
+    }
+
+    #[test]
+    fn test_tokenize_brackets_and_parentheses() {
+        let input = "\
+[text](url)
+![text](url)
+```";
+        let mut lexer = Lexer::from(input);
+        let expected_tokens = vec![
+            Token::new(TokenType::LeftBracket, "[".to_string()),
+            Token::new(TokenType::Text, "text".to_string()),
+            Token::new(TokenType::RightBracket, "]".to_string()),
+            Token::new(TokenType::LeftParen, "(".to_string()),
+            Token::new(TokenType::Text, "url".to_string()),
+            Token::new(TokenType::RightParen, ")".to_string()),
+            Token::new(TokenType::NewLine, "\n".to_string()),
+            Token::new(TokenType::Exclamation, "!".to_string()),
+            Token::new(TokenType::LeftBracket, "[".to_string()),
+            Token::new(TokenType::Text, "text".to_string()),
+            Token::new(TokenType::RightBracket, "]".to_string()),
+            Token::new(TokenType::LeftParen, "(".to_string()),
+            Token::new(TokenType::Text, "url".to_string()),
+            Token::new(TokenType::RightParen, ")".to_string()),
             Token::new(TokenType::NewLine, "\n".to_string()),
             Token::new(TokenType::TripleBacktick, "```".to_string()),
             Token::new(TokenType::EOF, "".to_string()),
