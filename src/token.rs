@@ -21,7 +21,6 @@ pub enum TokenType {
     Text,
     NewLine,
 
-    Invalid,
     EOF,
 }
 
@@ -50,7 +49,6 @@ impl TokenType {
             Self::Backtick => "`".to_string(),
             Self::TripleBacktick => "```".to_string(),
 
-            Self::Invalid => "INVALID".to_string(),
             Self::EOF => "EOF".to_string(),
         }
     }

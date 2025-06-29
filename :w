@@ -13,15 +13,13 @@ pub struct Lexer {
 
 impl Lexer {
     pub fn from(input: &str) -> Self {
-        let input = Self::clean_input(input);
-        let len = input.len();
-
+        let cleaned_input = Self::clean_input(input);
         let mut lexer = Lexer {
-            src: input,
+            src: cleaned_input,
             position: 0,
             read_position: 0,
-            line: if len == 0 { 0 } else { 1 },
-            col: 0,
+            line: if input.len() == 0 { 0 } else { 1 },
+            col: if input.len() == 0 { 0 } else { 1 },
             ch: None,
         };
 
@@ -36,11 +34,11 @@ impl Lexer {
     /// characters like \t or \n can be useful in parts of the input. eg, a \n character indicates
     /// the end of a new line and should not be removed.
     pub fn clean_input(input: &str) -> String {
-        let s: String = input
+        let s = input
             .lines()
-            .map(|line| line.trim_matches(' ').to_owned() + "\n")
+            .map(|line| line.trim_matches(' ') + "\n")
             .collect();
-        s.trim_end().to_owned()
+        s
     }
 
     pub fn eat_whitespace(&mut self) {
@@ -140,10 +138,13 @@ impl Lexer {
             Some('!') => Token::new(TokenType::Exclamation, "!".to_string(), self.line, self.col),
             None => Token::new(TokenType::EOF, "".to_string(), self.line, self.col),
             _ => {
-                let start_col = self.col;
-                let start_line = self.line;
                 let text = self.read_until_newline_or_inline_token();
-                return Token::new(TokenType::Text, text.clone(), start_line, start_col);
+                return Token::new(
+                    TokenType::Text,
+                    text.clone(),
+                    self.line - text.len(),
+                    self.col,
+                );
             }
         };
 
@@ -154,7 +155,7 @@ impl Lexer {
     pub fn read_until_newline_or_inline_token(&mut self) -> String {
         let start = self.position;
 
-        while !utils::is_inline_token(self.ch) && self.ch != Some('\n') && self.ch != None {
+        while !utils::is_inline_token(self.ch) && self.ch != Some('\n') {
             self.read_char();
         }
 
@@ -183,7 +184,7 @@ impl Lexer {
 
         if self.ch == Some('\n') {
             self.line += 1;
-            self.col = 0;
+            self.col = 1;
         } else {
             self.col += 1;
         }
@@ -244,7 +245,8 @@ mod tests {
 **bold**
 *italic*
 ***bolditalic***
-5*5";
+5*5
+";
         let mut lexer = Lexer::from(input);
 
         let expected_tokens = vec![
@@ -295,6 +297,7 @@ mod tests {
             Token::new(TokenType::Text, "5".to_string(), lexer.line, lexer.col),
             Token::new(TokenType::Asterisk, "*".to_string(), lexer.line, lexer.col),
             Token::new(TokenType::Text, "5".to_string(), lexer.line, lexer.col),
+            Token::new(TokenType::NewLine, "\n".to_string(), lexer.line, lexer.col),
             Token::new(TokenType::EOF, "".to_string(), lexer.line, lexer.col),
         ];
 

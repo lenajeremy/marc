@@ -19,3 +19,10 @@ pub fn is_block_level_token(t: token::TokenType) -> bool {
         _ => false,
     }
 }
+
+pub fn is_inline_token(ch: Option<char>) -> bool {
+    match ch {
+        Some('*') | Some('[') | Some(']') | Some('(') | Some(')') | Some('!') | Some('`') => true,
+        _ => false,
+    }
+}
