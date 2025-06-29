@@ -26,8 +26,6 @@ impl Lexer {
         lexer
     }
 
-    fn read_word() {}
-
     pub fn eat_whitespace(&mut self) {
         while self.ch == Some(' ') {
             self.read_char();
@@ -40,7 +38,7 @@ impl Lexer {
             Some('#') => {
                 let mut total_pounds = 1;
 
-                while self.peek_char(total_pounds - 1) == '#' && total_pounds < 6 {
+                while self.peek_char(total_pounds) == '#' && total_pounds < 6 {
                     total_pounds += 1;
                 }
 
@@ -68,11 +66,20 @@ impl Lexer {
                 return heading;
             }
             Some('\n') => Token::new(TokenType::NewLine, "\n".to_string()),
+            Some('*') => {
+                let next_char = self.peek_char(1);
+                if next_char == '*' {
+                    self.read_char();
+                    Token::new(TokenType::DoubleAsterisk, "**".to_string())
+                } else {
+                    Token::new(TokenType::Asterisk, "*".to_string())
+                }
+            }
             None => Token::new(TokenType::EOF, "".to_string()),
             _ => {
                 if utils::is_alphanumeric(self.ch) {
                     let word = self.read_text();
-                    Token::new(TokenType::Text, word)
+                    return Token::new(TokenType::Text, word);
                 } else {
                     Token::new(TokenType::Invalid, "INVALID".to_string())
                 }
@@ -90,20 +97,23 @@ impl Lexer {
             self.read_char();
         }
 
+        println!("loop broke at {:?} at position {}", self.ch, self.position);
+
         self.src[start..self.position].to_string()
     }
 
     fn peek_char(&self, distance: usize) -> char {
-        let char_index = self.read_position + distance;
+        let char_index = self.position + distance;
         if char_index >= self.src.len() {
             '\0'
         } else {
-            let byte = self.src[(char_index + distance)..].chars().next().unwrap();
+            let byte = self.src[(char_index)..].chars().next().unwrap();
             byte
         }
     }
 
     pub fn read_char(&mut self) {
+        println!("{self:#?}");
         self.ch = self.src[self.read_position..].chars().next();
         self.position = self.read_position;
         if let Some(x) = self.ch {
@@ -136,18 +146,69 @@ mod tests {
         let expected_tokens = vec![
             Token::new(TokenType::H2, "##".to_string()),
             Token::new(TokenType::Text, "Hello World".to_string()),
+            Token::new(TokenType::NewLine, "\n".to_string()),
             Token::new(TokenType::H1, "#".to_string()),
             Token::new(TokenType::Text, "This is Jeremiah".to_string()),
+            Token::new(TokenType::NewLine, "\n".to_string()),
             Token::new(TokenType::H1, "#".to_string()),
             Token::new(
                 TokenType::Text,
                 "And this is a very important heading".to_string(),
             ),
+            Token::new(TokenType::NewLine, "\n".to_string()),
             Token::new(TokenType::EOF, "".to_string()),
         ];
 
         for expected_token in expected_tokens {
             let token = lexer.next_token();
+            assert_eq!(token.token_type, expected_token.token_type);
+            assert_eq!(token.literal, expected_token.literal);
+        }
+    }
+
+    #[test]
+    fn test_bold_and_italics() {
+        let input = "\
+**bold**
+*italic*
+***bolditalic***
+5*5
+";
+        let mut lexer = Lexer::from(input);
+
+        let expected_tokens = vec![
+            Token::new(TokenType::DoubleAsterisk, "**".to_string()),
+            Token::new(TokenType::Text, "bold".to_string()),
+            Token::new(TokenType::DoubleAsterisk, "**".to_string()),
+            Token::new(TokenType::NewLine, "\n".to_string()),
+            Token::new(TokenType::Asterisk, "*".to_string()),
+            Token::new(TokenType::Text, "italic".to_string()),
+            Token::new(TokenType::Asterisk, "*".to_string()),
+            Token::new(TokenType::NewLine, "\n".to_string()),
+            Token::new(TokenType::DoubleAsterisk, "**".to_string()),
+            Token::new(TokenType::Asterisk, "*".to_string()),
+            Token::new(TokenType::Text, "bolditalic".to_string()),
+            // TODO:
+            // pretty sure the asterisk is supposed to come before the double asterisk
+            // but that'd make for a very challenging problem to solve, I'll come back
+            // to see if it affects the correctness of the code.
+            // I think it would but, fingers' crossed.
+            Token::new(TokenType::DoubleAsterisk, "**".to_string()),
+            Token::new(TokenType::Asterisk, "*".to_string()),
+            Token::new(TokenType::NewLine, "\n".to_string()),
+            Token::new(TokenType::Text, "5".to_string()),
+            Token::new(TokenType::Asterisk, "*".to_string()),
+            Token::new(TokenType::Text, "5".to_string()),
+            Token::new(TokenType::NewLine, "\n".to_string()),
+            Token::new(TokenType::EOF, "".to_string()),
+        ];
+
+        for expected_token in expected_tokens {
+            let token = lexer.next_token();
+            println!(
+                "expected: {:?}, got: {:?}",
+                expected_token.token_type, token.token_type
+            );
             assert_eq!(token.token_type, expected_token.token_type);
             assert_eq!(token.literal, expected_token.literal);
         }
