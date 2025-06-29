@@ -1,4 +1,4 @@
-#![allow(warnings)]
+//#![allow(warnings)]
 mod lexer;
 mod token;
 mod utils;

@@ -36,11 +36,12 @@ impl Lexer {
     /// characters like \t or \n can be useful in parts of the input. eg, a \n character indicates
     /// the end of a new line and should not be removed.
     pub fn clean_input(input: &str) -> String {
-        let s: String = input
-            .lines()
-            .map(|line| line.trim_matches(' ').to_owned() + "\n")
-            .collect();
-        s.trim_end().to_owned()
+        //let s: String = input
+        //    .lines()
+        //    .map(|line| line.trim_matches(' ').to_owned() + "\n")
+        //    .collect();
+        //s.trim_end().to_owned()
+        input.to_owned()
     }
 
     pub fn eat_whitespace(&mut self) {
@@ -99,13 +100,17 @@ impl Lexer {
             }
             Some('*') => {
                 let next_char = self.peek_char(1);
+
+                let start_line = self.line;
+                let start_col = self.col;
+
                 if next_char == '*' {
                     self.read_char();
                     Token::new(
                         TokenType::DoubleAsterisk,
                         "**".to_string(),
-                        self.line,
-                        self.col,
+                        start_line,
+                        start_col,
                     )
                 } else {
                     Token::new(TokenType::Asterisk, "*".to_string(), self.line, self.col)
@@ -197,9 +202,8 @@ impl Lexer {
     }
 }
 
+#[cfg(test)]
 mod tests {
-    use crate::token;
-
     use super::*;
     #[test]
     fn test_headings() {
@@ -262,7 +266,7 @@ mod tests {
             Token::new(TokenType::H2, "##".to_string(), lexer.line, lexer.col),
             Token::new(
                 TokenType::Text,
-                "Hello World".to_string(),
+                " Hello World".to_string(),
                 lexer.line,
                 lexer.col,
             ),
@@ -270,7 +274,7 @@ mod tests {
             Token::new(TokenType::H1, "#".to_string(), lexer.line, lexer.col),
             Token::new(
                 TokenType::Text,
-                "This is Jeremiah".to_string(),
+                " This is Jeremiah".to_string(),
                 lexer.line,
                 lexer.col,
             ),
@@ -278,7 +282,7 @@ mod tests {
             Token::new(TokenType::H1, "#".to_string(), lexer.line, lexer.col),
             Token::new(
                 TokenType::Text,
-                "And this is a very important heading".to_string(),
+                " And this is a very important heading".to_string(),
                 lexer.line,
                 lexer.col,
             ),
@@ -288,9 +292,8 @@ mod tests {
 
         for expected_token in expected_tokens {
             let token = lexer.next_token();
-            println!("{token:#?}");
-            //assert_eq!(token.token_type, expected_token.token_type);
-            //assert_eq!(token.literal, expected_token.literal);
+            assert_eq!(token.token_type, expected_token.token_type);
+            assert_eq!(token.literal, expected_token.literal);
         }
     }
 

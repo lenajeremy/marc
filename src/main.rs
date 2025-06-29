@@ -15,4 +15,7 @@ fn main() {
     println!("{:#?}", l.next_token());
     println!("{:#?}", l.next_token());
     println!("{:#?}", l.next_token());
+    println!("{:#?}", l.next_token());
+    println!("{:#?}", l.next_token());
+    println!("{:#?}", l.next_token());
 }
