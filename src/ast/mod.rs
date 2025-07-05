@@ -1,12 +1,17 @@
+use std::any::Any;
+
+pub mod block_quote;
+pub mod code;
 pub mod heading;
 pub mod image;
 pub mod inline_container;
 pub mod link;
 pub mod text;
 
-pub trait Node {
+pub trait Node: Any {
     fn token_literal(&self) -> String;
-    //fn translate(&self) -> String;
+    fn translate(&self) -> String;
+    fn as_any(self: Box<Self>) -> Box<dyn Any>;
 }
 
 pub trait Block: Node {
@@ -25,6 +30,24 @@ impl Node for Program {
     fn token_literal(&self) -> String {
         self.nodes.token_literal()
     }
+
+    fn translate(&self) -> String {
+        let inside: String = self.nodes.iter().map(|node| node.translate()).collect();
+        format!(
+            "<html><style>
+        img {{
+            width: 300px;
+            height: 300px;
+            object-fit: cover;
+        }}
+            </style><body>{}</body></html>",
+            inside
+        )
+    }
+
+    fn as_any(self: Box<Self>) -> Box<dyn Any> {
+        self
+    }
 }
 
 impl Node for Vec<Box<dyn Node>> {
@@ -37,6 +60,18 @@ impl Node for Vec<Box<dyn Node>> {
         } else {
             String::from("")
         }
+    }
+
+    fn translate(&self) -> String {
+        if self.len() > 0 {
+            let literal: String = self.iter().map(|x| x.translate()).collect();
+            literal
+        } else {
+            String::from("")
+        }
+    }
+    fn as_any(self: Box<Self>) -> Box<dyn Any> {
+        self
     }
 }
 
@@ -51,6 +86,18 @@ impl Node for Vec<Box<dyn Inline>> {
             String::from("")
         }
     }
+
+    fn translate(&self) -> String {
+        if self.len() > 0 {
+            let literal: String = self.iter().map(|x| x.translate()).collect();
+            literal
+        } else {
+            String::from("")
+        }
+    }
+    fn as_any(self: Box<Self>) -> Box<dyn Any> {
+        self
+    }
 }
 
 impl Node for Vec<Box<dyn Block>> {
@@ -63,6 +110,14 @@ impl Node for Vec<Box<dyn Block>> {
         } else {
             String::from("")
         }
+    }
+
+    fn translate(&self) -> String {
+        todo!()
+    }
+
+    fn as_any(self: Box<Self>) -> Box<dyn Any> {
+        self
     }
 }
 

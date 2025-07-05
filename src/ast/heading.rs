@@ -1,3 +1,5 @@
+use std::any::Any;
+
 use super::{Block, Inline, Node, inline_container::InlineContainer};
 
 pub struct Heading {
@@ -28,6 +30,19 @@ impl Node for Heading {
             self.level,
             self.inner.token_literal()
         )
+    }
+
+    fn translate(&self) -> String {
+        format!(
+            "<h{}>{}</h{}>",
+            self.level,
+            self.inner.translate(),
+            self.level
+        )
+    }
+
+    fn as_any(self: Box<Self>) -> Box<dyn Any> {
+        self
     }
 }
 

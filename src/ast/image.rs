@@ -1,3 +1,5 @@
+use std::any::Any;
+
 use super::{Block, Node};
 
 pub struct Image {
@@ -13,6 +15,14 @@ impl Image {
 impl Node for Image {
     fn token_literal(&self) -> String {
         format!("Image(src = \"{}\", alt = \"{}\")", self.src, self.alt)
+    }
+
+    fn translate(&self) -> String {
+        format!("<img src = \"{}\" alt = \"{}\" />", self.src, self.alt)
+    }
+
+    fn as_any(self: Box<Self>) -> Box<dyn Any> {
+        self
     }
 }
 

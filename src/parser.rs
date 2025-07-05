@@ -1,10 +1,12 @@
 use crate::{
     Block, Inline, Lexer, Node, Program, Token, TokenType,
+    block_quote::BlockQuote,
+    code::InlineCode,
     heading::Heading,
     image::Image,
     inline_container::InlineContainer,
     link::Link,
-    text::{BoldText, Text},
+    text::{BoldText, ItalicizedText, ParagraphText, Text},
 };
 
 pub struct Parser {
@@ -84,8 +86,41 @@ impl Parser {
     }
 
     fn parse_text(&mut self) -> Box<dyn Node> {
+        println!("parsing text...");
         let token = self.curr_token.clone().unwrap();
-        Box::new(Text::new(token.literal))
+        println!("{token:#?}");
+
+        if token.start_col > 1 {
+            return Box::new(Text::new(token.literal));
+        }
+
+        let mut inline_container = Box::new(InlineContainer::new());
+        inline_container.add_child(Box::new(Text::new(token.literal)));
+
+        self.advance_token();
+        let mut paragraph_text = ParagraphText::new();
+
+        if self.curr_token.clone().unwrap().token_type == TokenType::NewLine {
+            paragraph_text.set_inner(inline_container);
+            return Box::new(paragraph_text);
+        }
+
+        // TODO: This part of Rust, I don't fully understand. I need to go through this again
+        let block = self.parse(TokenType::NewLine, true);
+        if let Some(block) = block {
+            let block_as_any = block.as_any();
+            match block_as_any.downcast::<InlineContainer>() {
+                Ok(b) => {
+                    inline_container.extend(*b);
+                }
+                Err(_) => {}
+            }
+            paragraph_text.set_inner(inline_container);
+            println!("after parsing paragraph text {:#?}", self.curr_token);
+        }
+
+        self.advance_token();
+        Box::new(paragraph_text)
     }
 
     fn parse_link(&mut self) -> Result<(String, String), String> {
@@ -185,6 +220,11 @@ impl Parser {
     }
 
     fn parse_bold_text(&mut self) -> Box<dyn Node> {
+        let curr_token = self.curr_token.clone().unwrap();
+        if curr_token.start_col > 1 {
+            return Box::new(Text::new(">".to_string()));
+        }
+
         println!("parsing bold text");
         let mut bold_text = BoldText::new();
         self.advance_token();
@@ -214,16 +254,60 @@ impl Parser {
         Box::new(h1)
     }
 
-    fn parse_italics(&self) -> Box<dyn Block + 'static> {
-        todo!()
+    fn parse_italics(&mut self) -> Box<dyn Node> {
+        println!("parsing italicized text");
+        let mut italicized_text = ItalicizedText::new();
+        self.advance_token();
+
+        let block = self.parse(TokenType::Asterisk, true);
+        if let Some(block) = block {
+            italicized_text.set_inner(block);
+            println!("after parsing italicized text {:#?}", self.curr_token);
+        }
+
+        self.advance_token();
+        Box::new(italicized_text)
     }
 
-    fn parse_blockquote(&self) -> Box<dyn Block + 'static> {
-        todo!()
+    fn parse_blockquote(&mut self) -> Box<dyn Node> {
+        self.advance_token();
+
+        let curr_token = self.curr_token.clone().unwrap();
+        if curr_token.token_type == TokenType::NewLine {
+            return Box::new(Text::new(">".to_string()));
+        }
+
+        let mut block_quote = BlockQuote::new();
+
+        let content = self.parse(TokenType::NewLine, true);
+        if let Some(content) = content {
+            println!("done parsing block quote");
+            block_quote.set_inner(content);
+        }
+
+        self.advance_token();
+        Box::new(block_quote)
     }
 
-    fn parse_inline_code(&self) -> Box<dyn Block + 'static> {
-        todo!()
+    fn parse_inline_code(&mut self) -> Box<dyn Node> {
+        println!("parsing inline code");
+        let mut code_content = String::new();
+
+        self.advance_token();
+
+        while let Some(token) = self.curr_token.clone() {
+            if token.token_type == TokenType::NewLine || token.token_type == TokenType::EOF {
+                return Box::new(Text::new(code_content));
+            } else if token.token_type == TokenType::Backtick {
+                return Box::new(InlineCode::new(code_content));
+            }
+
+            code_content.push_str(&token.literal);
+            self.advance_token();
+        }
+
+        // this should never run
+        Box::new(Text::new("".to_string()))
     }
 
     fn parse_code_block(&self) -> Box<dyn Block + 'static> {
