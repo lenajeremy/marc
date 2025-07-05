@@ -220,11 +220,6 @@ impl Parser {
     }
 
     fn parse_bold_text(&mut self) -> Box<dyn Node> {
-        let curr_token = self.curr_token.clone().unwrap();
-        if curr_token.start_col > 1 {
-            return Box::new(Text::new(">".to_string()));
-        }
-
         println!("parsing bold text");
         let mut bold_text = BoldText::new();
         self.advance_token();

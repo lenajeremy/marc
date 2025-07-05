@@ -7,7 +7,9 @@ This is a simple paragraph with some `inline code` and a [link to Google](https:
 Here's an image for you:
 ![A cute kitten](https://images.unsplash.com/photo-1503777119540-ce54b422baff?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fGNhdHxlbnwwfHwwfHx8MA%3D%3D)
 
-> Everyone knows what they're doing. Yiipeeeee **Yaaayyyyy!!!!** To our heav'nly father, Lord we pray.
+This is a sample paragraph with ***bold italics*** Something else and normal
+
+Everyone knows what they're doing. Yiipeeeee **Yaaayyyyy!!!!** To our heav'nly father, Lord we pray.
 
 More text here with multiple elements: `code again`, then another [link](https://google.com) and a cat image. 
 
@@ -21,7 +23,7 @@ Paragraph under heading three. It has a [link to my portfolio](https://lenajerem
 
 Plain **paragraph** with just text, no inline elements.
 
-> Everybody has one thing they desire and that thing would find you. ❤️
+Everybody has one thing they desire and that thing would find you. ❤️
 
 ##### Heading **Five**
 
