@@ -39,7 +39,6 @@ impl Parser {
         let mut inline_container = InlineContainer::new();
 
         while let Some(token) = self.curr_token.clone() {
-            println!("{:#?}", token);
             if token.token_type == end_token {
                 return None;
             }
