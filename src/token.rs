@@ -1,4 +1,4 @@
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum TokenType {
     H1,
     H2,
@@ -24,42 +24,42 @@ pub enum TokenType {
     EOF,
 }
 
-//impl TokenType {
-//    fn as_string(&self) -> String {
-//        match self {
-//            Self::H1 => "#".to_string(),
-//            Self::H2 => "##".to_string(),
-//            Self::H3 => "###".to_string(),
-//            Self::H4 => "####".to_string(),
-//            Self::H5 => "#####".to_string(),
-//            Self::H6 => "######".to_string(),
-//
-//            Self::Text => "TEXT_TYPE".to_string(),
-//            Self::Asterisk => "*".to_string(),
-//            Self::DoubleAsterisk => "**".to_string(),
-//            Self::GreaterThan => ">".to_string(),
-//            Self::NewLine => "\n".to_string(),
-//
-//            Self::LeftBracket => "[".to_string(),
-//            Self::RightBracket => "]".to_string(),
-//            Self::LeftParen => "(".to_string(),
-//            Self::RightParen => ")".to_string(),
-//            Self::Exclamation => "!".to_string(),
-//
-//            Self::Backtick => "`".to_string(),
-//            Self::TripleBacktick => "```".to_string(),
-//
-//            Self::EOF => "EOF".to_string(),
-//        }
-//    }
-//}
+impl TokenType {
+    pub fn as_string(&self) -> String {
+        match self {
+            Self::H1 => "#".to_string(),
+            Self::H2 => "##".to_string(),
+            Self::H3 => "###".to_string(),
+            Self::H4 => "####".to_string(),
+            Self::H5 => "#####".to_string(),
+            Self::H6 => "######".to_string(),
 
-#[derive(Debug)]
+            Self::Text => "TEXT_TYPE".to_string(),
+            Self::Asterisk => "*".to_string(),
+            Self::DoubleAsterisk => "**".to_string(),
+            Self::GreaterThan => ">".to_string(),
+            Self::NewLine => "\n".to_string(),
+
+            Self::LeftBracket => "[".to_string(),
+            Self::RightBracket => "]".to_string(),
+            Self::LeftParen => "(".to_string(),
+            Self::RightParen => ")".to_string(),
+            Self::Exclamation => "!".to_string(),
+
+            Self::Backtick => "`".to_string(),
+            Self::TripleBacktick => "```".to_string(),
+
+            Self::EOF => "EOF".to_string(),
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
 pub struct Token {
     pub literal: String,
     pub token_type: TokenType,
-    start_line: usize,
-    start_col: usize,
+    pub start_line: usize,
+    pub start_col: usize,
 }
 
 impl Token {
