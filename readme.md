@@ -26,16 +26,6 @@ Here are some **features**:
 
 ---
 
-## 🚧 Planned
-
-Lists (-, *, 1.)
-Blockquotes (>)
-Nested inlines (**bold *italic***)
-Basic error handling for unmatched markers
-Minimal CSS output (optional)
-
----
-
 ## 📦 Usage
 
 - Write your markdown in the `k.md` file.
@@ -54,4 +44,14 @@ cargo run && open output.html
 - Parser — turns the token stream into an AST (syntax tree).
 - Renderer — walks the AST and writes valid HTML.
 - CLI — glues it all together.
+
+---
+
+## 🚧 Planned
+
+- Lists (-, *, 1.)
+- Blockquotes (>)
+- Nested inlines (**bold *italic***)
+- Basic error handling for unmatched markers
+- Minimal CSS output (optional)
 
