@@ -34,13 +34,11 @@ impl Node for Program {
     fn translate(&self) -> String {
         let inside: String = self.nodes.iter().map(|node| node.translate()).collect();
         format!(
-            "<html><style>
-        img {{
-            width: 300px;
-            height: 300px;
-            object-fit: cover;
-        }}
-            </style><body>{}</body></html>",
+            "
+            <html>
+                <link href = \"./styles.css\" rel = \"stylesheet\"></link>
+                <body>{}</body>
+            </html>",
             inside
         )
     }

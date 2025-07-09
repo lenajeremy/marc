@@ -1,0 +1,97 @@
+/* Basic page setup */
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.6;
+  color: #222;
+  background: #fff;
+  padding: 2rem;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  margin: 2rem 0 1rem;
+  color: #111;
+}
+
+h1 { font-size: 2.2rem; }
+h2 { font-size: 1.8rem; }
+h3 { font-size: 1.5rem; }
+h4 { font-size: 1.3rem; }
+h5 { font-size: 1.1rem; }
+h6 { font-size: 1rem; }
+
+/* Paragraphs */
+p {
+  margin: 1rem 0;
+  letter-spacing: 0.02em;
+  font-weight: 400;
+}
+
+/* Inline code */
+code {
+  font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  background: #f5f5f5;
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+  font-size: 0.95em;
+}
+
+/* Code blocks */
+pre {
+  background: #f5f5f5;
+  padding: 1rem;
+  border-radius: 6px;
+  overflow-x: auto;
+  font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  line-height: 1.4;
+  font-size: 0.95em;
+}
+
+pre code {
+  background: none;
+  padding: 0;
+}
+
+/* Bold and italic */
+strong {
+  font-weight: 700;
+}
+
+em {
+  font-style: italic;
+}
+
+/* Links */
+a {
+  color: #007acc;
+  text-decoration: none;
+  border-bottom: 1px solid #007acc;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Images */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 1rem 0;
+  border-radius: 4px;
+}
+
+/* Blockquotes */
+blockquote {
+  border-left: 4px solid #ccc;
+  margin: 1.5rem 0;
+  padding-left: 1rem;
+  color: #555;
+  font-style: italic;
+  background: #f9f9f9;
+}
