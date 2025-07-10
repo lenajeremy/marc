@@ -88,7 +88,14 @@ impl Lexer {
                     self.read_char();
                 }
 
-                return heading;
+                if let Some(curr_char) = self.ch {
+                    if curr_char == ' ' {
+                        return heading;
+                    }
+                }
+
+                // headers should be the first characters in the line
+                return Token::new(TokenType::Text, "#".repeat(total_pounds), self.line, 1);
             }
             Some('\n') => Token::new(TokenType::NewLine, "\n".to_string(), self.line, self.col),
             Some('>') => {
@@ -292,6 +299,7 @@ mod tests {
 
         for expected_token in expected_tokens {
             let token = lexer.next_token();
+            println!("expected: {:?}\n got: {:?}", expected_token, token);
             assert_eq!(token.token_type, expected_token.token_type);
             assert_eq!(token.literal, expected_token.literal);
         }

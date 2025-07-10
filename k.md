@@ -33,4 +33,14 @@ More text here with multiple elements: `code again`, then another [link](https:/
 
 Closing paragraph to make sure trailing text works.
 
+```python
+print("Hello World everyone")
+```
+
+```
+console.log("JAvascript boysssss")
+let myName = "jeremiah";
+console.log(`I think that ${myname} is the GOAT programmer`);
+```
+
 > Rounding up with a blockquote

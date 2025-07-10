@@ -80,8 +80,10 @@ a:hover {
 /* Images */
 img {
   max-width: 100%;
+  aspect-ratio: 1;
   height: auto;
   display: block;
+  object-fit: cover;
   margin: 1rem 0;
   border-radius: 4px;
 }

@@ -1,7 +1,7 @@
 use crate::{
     Block, Inline, Lexer, Node, Program, Token, TokenType,
     block_quote::BlockQuote,
-    code::InlineCode,
+    code::{CodeBlock, InlineCode},
     heading::Heading,
     image::Image,
     inline_container::InlineContainer,
@@ -304,8 +304,42 @@ impl Parser {
         Box::new(Text::new("".to_string()))
     }
 
-    fn parse_code_block(&self) -> Box<dyn Block + 'static> {
-        todo!()
+    fn parse_code_block(&mut self) -> Box<dyn Node> {
+        println!("parsing code block");
+
+        self.advance_token();
+        let language: String;
+        let mut content = String::new();
+
+        let mut curr_token = self.curr_token.clone().unwrap();
+
+        match curr_token.token_type {
+            TokenType::Text => {
+                language = curr_token.literal.trim().to_string();
+                self.advance_token(); // move past the text token (the language of the program)
+                self.advance_token(); // move past the new line character token
+            }
+            TokenType::NewLine => {
+                self.advance_token();
+                language = String::new();
+            }
+            _ => return Box::new(Text::new("```".to_owned())),
+        };
+
+        curr_token = self.curr_token.clone().unwrap();
+
+        while curr_token.token_type != TokenType::EOF
+            && curr_token.token_type != TokenType::TripleBacktick
+        {
+            content.push_str(&curr_token.literal);
+            self.advance_token();
+            curr_token = self.curr_token.clone().unwrap();
+        }
+
+        self.advance_token(); // move past the code block so you can parse other tokens
+        println!("{:?}", self.curr_token.to_owned().unwrap());
+
+        Box::new(CodeBlock::new(content, language))
     }
 
     fn parse_link_start(&mut self) -> Box<dyn Inline> {
@@ -327,7 +361,7 @@ mod tests {
     use crate::{
         Node,
         ast::heading::Heading,
-        heading,
+        block_quote, heading,
         text::{BoldText, Text},
     };
 
@@ -455,5 +489,81 @@ mod tests {
             parsed_program.token_literal(),
             expected_program.token_literal()
         );
+    }
+
+    #[test]
+    fn test_parses_block_quote_valid() {
+        let input = "> Hello World";
+        let lexer = Lexer::from(input);
+        let mut p = Parser::new(lexer);
+
+        let mut expected_program = Program::new();
+
+        let mut block_quote = Box::new(BlockQuote::new());
+        let mut block_quote_inner = Box::new(InlineContainer::new());
+        block_quote_inner.add_child(Box::new(Text::new(" Hello World".to_string())));
+
+        block_quote.set_inner(block_quote_inner);
+
+        expected_program.add_block(block_quote);
+
+        let parsed_program = p.parse_program();
+
+        assert_eq!(
+            parsed_program.token_literal(),
+            expected_program.token_literal()
+        );
+    }
+
+    #[test]
+    fn test_parses_block_quote_with_middle_sign() {
+        let input = "> Hello > World";
+        let lexer = Lexer::from(input);
+        let mut p = Parser::new(lexer);
+
+        let mut expected_program = Program::new();
+
+        let mut block_quote = Box::new(BlockQuote::new());
+        let mut block_quote_inner = Box::new(InlineContainer::new());
+        block_quote_inner.add_child(Box::new(Text::new(" Hello > World".to_string())));
+
+        block_quote.set_inner(block_quote_inner);
+
+        expected_program.add_block(block_quote);
+
+        let parsed_program = p.parse_program();
+
+        assert_eq!(
+            parsed_program.token_literal(),
+            expected_program.token_literal()
+        );
+    }
+
+    #[test]
+    fn test_parses_code_blocks() {
+        let input = "```python
+print(\"Hello World\")
+```";
+        let lexer = Lexer::from(input);
+        let mut p = Parser::new(lexer);
+
+        let mut expected_program = Program::new();
+        let code_block = Box::new(CodeBlock::new(
+            "print(\"Hello World\")\n".to_string(),
+            "python".to_string(),
+        ));
+        expected_program.add_block(code_block);
+
+        let parsed_program = p.parse_program();
+        println!(
+            "{}\n{}",
+            expected_program.token_literal(),
+            parsed_program.token_literal()
+        );
+
+        assert_eq!(
+            parsed_program.token_literal(),
+            expected_program.token_literal()
+        )
     }
 }
