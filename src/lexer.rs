@@ -1,4 +1,4 @@
-use crate::{token::*, utils};
+use crate::{is_numeric, token::*, utils};
 use std::cmp::min;
 
 #[derive(Debug)]
@@ -105,6 +105,24 @@ impl Lexer {
                     Token::new(TokenType::GreaterThan, ">".to_string(), self.line, self.col)
                 }
             }
+            Some('-') => {
+                let start_line = self.line;
+                let start_col = self.col;
+                let token: Token;
+
+                if self.peek_char(1) != ' ' {
+                    token = Token::new(TokenType::Text, "-".to_string(), start_line, start_col);
+                } else {
+                    token = Token::new(
+                        TokenType::UnorderedListItem,
+                        "-".to_string(),
+                        start_line,
+                        start_col,
+                    )
+                }
+                self.read_char();
+                token
+            }
             Some('*') => {
                 let next_char = self.peek_char(1);
 
@@ -161,6 +179,18 @@ impl Lexer {
             _ => {
                 let start_col = self.col;
                 let start_line = self.line;
+
+                if is_numeric(self.ch) && self.peek_char(1) == '.' && self.peek_char(2) == ' ' {
+                    let literal = format!("{}. ", self.ch.unwrap());
+                    let token =
+                        Token::new(TokenType::OrderedListItem, literal, start_line, start_col);
+                    self.read_char();
+                    self.read_char();
+                    self.read_char();
+
+                    return token;
+                }
+
                 let text = self.read_until_newline_or_inline_token();
                 return Token::new(TokenType::Text, text.clone(), start_line, start_col);
             }

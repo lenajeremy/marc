@@ -18,6 +18,9 @@ pub enum TokenType {
     RightParen,
     Exclamation,
 
+    UnorderedListItem,
+    OrderedListItem,
+
     Text,
     NewLine,
 
@@ -45,6 +48,8 @@ impl TokenType {
             Self::LeftParen => "(".to_string(),
             Self::RightParen => ")".to_string(),
             Self::Exclamation => "!".to_string(),
+            Self::UnorderedListItem => "-".to_string(),
+            Self::OrderedListItem => "1.".to_string(),
 
             Self::Backtick => "`".to_string(),
             Self::TripleBacktick => "```".to_string(),

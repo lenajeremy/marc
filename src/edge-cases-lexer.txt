@@ -1,2 +1,0 @@
-1. "#" signs being in the middle of a line or word.
-2. rendering a bad link with "()" in it.

@@ -37,10 +37,51 @@ Closing paragraph to make sure trailing text works.
 print("Hello World everyone")
 ```
 
-```
+```javascript
 console.log("JAvascript boysssss")
 let myName = "jeremiah";
 console.log(`I think that ${myname} is the GOAT programmer`);
 ```
 
-> Rounding up with a blockquote
+> Rounding up with a blockquote hello world
+
+- hello everyone 
+- my name is jeremiah
+- something interesting
+
+1. hello everon
+1. something interesting
+5. somehting
+
+5. you can do this really
+
+9. i believe in you **man**
+
+10. seek first the kingdom of God and His righteousness
+
+- something you know
+
+1. hallelujah
+
+hfajshdf
+
+# Readme Template
+
+This is a template from which I would create proper readme.md documents for my current and future projects.
+
+## Installation
+
+No installation required. Just copy, paste and edit.
+
+### Steps
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/lenajeremy/readme-template.git
+   ```
+2. Copy `template.md` and paste in your project directory. 
+
+3. Edit for free.
+   ```javascript
+   console.log('hello world')
+   ```

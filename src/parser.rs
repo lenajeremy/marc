@@ -1,3 +1,5 @@
+use std::clone;
+
 use crate::{
     Block, Inline, Lexer, Node, Program, Token, TokenType,
     block_quote::BlockQuote,
@@ -6,6 +8,7 @@ use crate::{
     image::Image,
     inline_container::InlineContainer,
     link::Link,
+    list::{ListItem, OrderedList, UnorderedList},
     text::{BoldText, ItalicizedText, ParagraphText, Text},
 };
 
@@ -60,6 +63,18 @@ impl Parser {
                 TokenType::RightParen => self.parse_text(),
                 TokenType::Exclamation => self.parse_image(),
                 TokenType::Text => self.parse_text(),
+                TokenType::UnorderedListItem => {
+                    self.advance_token();
+                    let mut list = Box::new(UnorderedList::new());
+                    self.parse_unordered_list_item(&mut list);
+                    list
+                }
+                TokenType::OrderedListItem => {
+                    self.advance_token();
+                    let mut list = Box::new(OrderedList::new());
+                    self.parse_ordered_list_item(&mut list);
+                    list
+                }
                 TokenType::NewLine => Box::new(Text::new(token.literal)),
                 TokenType::EOF => break,
             };
@@ -107,8 +122,7 @@ impl Parser {
         // TODO: This part of Rust, I don't fully understand. I need to go through this again
         let block = self.parse(TokenType::NewLine, true);
         if let Some(block) = block {
-            let block_as_any = block.as_any();
-            match block_as_any.downcast::<InlineContainer>() {
+            match block.as_any().downcast::<InlineContainer>() {
                 Ok(b) => {
                     inline_container.extend(*b);
                 }
@@ -354,16 +368,81 @@ impl Parser {
             Box::new(Text::new("!".to_string() + &res.err().unwrap()))
         }
     }
+
+    fn parse_unordered_list_item(&mut self, list: &mut Box<UnorderedList>) {
+        loop {
+            let content = self.parse(TokenType::NewLine, true); // parse everything up until the
+            // next new line character
+            let mut list_item = Box::new(ListItem::new()); // create a list item
+
+            if let Some(inner) = content {
+                list_item.set_inner(inner); // set the inner of the list item to this parsed node
+                list.add_list_item(list_item);
+            } else {
+                // content is only None when the end_token equals curr_token. so for this to
+                // panic that means curr_token should equal the new line character but this
+                // would be true because there is at least a white space (" ") character after
+                // the - token for this function to even be called
+                panic!(
+                    "content should never return none because we'd definitely have a space text token after the - token"
+                )
+            }
+            println!("curr token {:?}", self.curr_token.clone().unwrap());
+
+            // at this point, curr_token should be the new line character;
+            self.advance_token();
+            self.advance_token(); // after this we should expect the next token to be an
+            // unordered list item token. if it's not we can break the
+            // loop and return the list node.
+            //
+            println!("curr token {:?}", self.curr_token.clone().unwrap());
+            if self.curr_token.clone().unwrap().token_type == TokenType::UnorderedListItem {
+                self.advance_token();
+            } else {
+                break;
+            }
+        }
+    }
+
+    fn parse_ordered_list_item(&mut self, list: &mut Box<OrderedList>) {
+        println!("parsing ordered list....");
+        loop {
+            let content = self.parse(TokenType::NewLine, true); // parse everything up until the
+            // next new line character
+            let mut list_item = Box::new(ListItem::new()); // create a list item
+
+            if let Some(inner) = content {
+                list_item.set_inner(inner); // set the inner of the list item to this parsed node
+                list.add_list_item(list_item);
+            } else {
+                // content is only None when the end_token equals curr_token. so for this to
+                // panic that means curr_token should equal the new line character but this
+                // would be true because there is at least a white space (" ") character after
+                // the - token for this function to even be called
+                panic!(
+                    "content should never return none because we'd definitely have a space text token after the - token"
+                )
+            }
+            println!("curr token {:?}", self.curr_token.clone().unwrap());
+
+            // at this point, curr_token should be the new line character;
+            self.advance_token();
+            self.advance_token(); // after this we should expect the next token to be an
+            // unordered list item token. if it's not we can break the
+            // loop and return the list node.
+            //
+            println!("curr token {:?}", self.curr_token.clone().unwrap());
+            if self.curr_token.clone().unwrap().token_type == TokenType::OrderedListItem {
+                self.advance_token();
+            } else {
+                break;
+            }
+        }
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        Node,
-        ast::heading::Heading,
-        block_quote, heading,
-        text::{BoldText, Text},
-    };
 
     use super::*;
 

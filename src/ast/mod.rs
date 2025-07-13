@@ -6,6 +6,7 @@ pub mod heading;
 pub mod image;
 pub mod inline_container;
 pub mod link;
+pub mod list;
 pub mod text;
 
 pub trait Node: Any {
@@ -35,7 +36,9 @@ impl Node for Program {
         let inside: String = self.nodes.iter().map(|node| node.translate()).collect();
         format!(
             "
+            <!DOCTYPE html>
             <html>
+            <meta charset=\"UTF-8\">
                 <link href = \"./styles.css\" rel = \"stylesheet\"></link>
                 <body>{}</body>
             </html>",

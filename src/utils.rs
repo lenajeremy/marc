@@ -7,6 +7,13 @@ pub fn is_alphanumeric(ch: Option<char>) -> bool {
     }
 }
 
+pub fn is_numeric(ch: Option<char>) -> bool {
+    match ch {
+        Some(ch) => ch.is_numeric(),
+        None => false,
+    }
+}
+
 pub fn is_block_level_token(t: token::TokenType) -> bool {
     match t {
         TokenType::TripleBacktick

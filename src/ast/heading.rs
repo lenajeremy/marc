@@ -1,6 +1,6 @@
 use std::any::Any;
 
-use super::{Block, Inline, Node, inline_container::InlineContainer};
+use super::{Block, Node, inline_container::InlineContainer};
 
 pub struct Heading {
     // `content` is a Vec because a heading can have pure text as well as other inline nodes
