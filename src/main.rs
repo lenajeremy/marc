@@ -1,8 +1,17 @@
 #![allow(warnings)]
 use md_to_html::{Lexer, Node, Parser};
+use std::env;
 
 fn main() {
-    let input = match std::fs::read_to_string("k.md") {
+    let args: Vec<_> = env::args().collect();
+
+    if args.len() <= 1 {
+        panic!("source markdown file not provided. please run marc <file>.md");
+    }
+
+    let in_file = args[1].as_str();
+
+    let input = match std::fs::read_to_string(in_file) {
         Ok(input) => input,
         Err(_) => {
             println!("Failed to read from input");
@@ -17,7 +26,10 @@ fn main() {
 
     let html = program.translate();
 
-    match out(html, "output.html") {
+    let out_file: Vec<_> = in_file.split(".").collect();
+    let out_file = out_file.first().unwrap().to_string() + ".html";
+
+    match out(html, &out_file) {
         Err(x) => {
             println!("failed to write html to file");
             println!("{}", x);
