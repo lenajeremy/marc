@@ -2,6 +2,7 @@ use std::any::Any;
 
 pub mod block_quote;
 pub mod code;
+pub mod expression;
 pub mod heading;
 pub mod image;
 pub mod inline_container;
@@ -38,9 +39,12 @@ impl Node for Program {
             "
             <!DOCTYPE html>
             <html>
-            <meta charset=\"UTF-8\">
+            <head>
+                <meta charset=\"UTF-8\">
+                <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
                 <link href = \"./styles.css\" rel = \"stylesheet\"></link>
-                <body>{}</body>
+            </head>
+            <body>{}</body>
             </html>",
             inside
         )

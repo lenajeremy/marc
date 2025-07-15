@@ -2,6 +2,7 @@
 mod ast;
 mod lexer;
 mod parser;
+mod scope;
 mod token;
 mod utils;
 

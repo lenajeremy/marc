@@ -76,6 +76,17 @@ impl Parser {
                     list
                 }
                 TokenType::NewLine => Box::new(Text::new(token.literal)),
+                TokenType::LeftDoubleBrace => todo!(),
+                TokenType::RightDoubleBrace => todo!(),
+                TokenType::KeywordStart => todo!(),
+                TokenType::KeywordEnd => todo!(),
+                TokenType::If => todo!(),
+                TokenType::EndIf => todo!(),
+                TokenType::For => todo!(),
+                TokenType::EndFor => todo!(),
+                TokenType::In => todo!(),
+                TokenType::Import => todo!(),
+                TokenType::Include => todo!(),
                 TokenType::EOF => break,
             };
             println!("done parsing {}", block.token_literal());
@@ -119,7 +130,6 @@ impl Parser {
             return Box::new(paragraph_text);
         }
 
-        // TODO: This part of Rust, I don't fully understand. I need to go through this again
         let block = self.parse(TokenType::NewLine, true);
         if let Some(block) = block {
             match block.as_any().downcast::<InlineContainer>() {

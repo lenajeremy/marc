@@ -21,6 +21,21 @@ pub enum TokenType {
     UnorderedListItem,
     OrderedListItem,
 
+    // Templating related syntax
+    LeftDoubleBrace,
+    RightDoubleBrace,
+    KeywordStart,
+    KeywordEnd,
+
+    // Keywords
+    If,
+    EndIf,
+    For,
+    EndFor,
+    In,
+    Import,
+    Include,
+
     Text,
     NewLine,
 
@@ -30,31 +45,38 @@ pub enum TokenType {
 impl TokenType {
     pub fn as_string(&self) -> String {
         match self {
-            Self::H1 => "#".to_string(),
-            Self::H2 => "##".to_string(),
-            Self::H3 => "###".to_string(),
-            Self::H4 => "####".to_string(),
-            Self::H5 => "#####".to_string(),
-            Self::H6 => "######".to_string(),
-
-            Self::Text => "TEXT_TYPE".to_string(),
-            Self::Asterisk => "*".to_string(),
-            Self::DoubleAsterisk => "**".to_string(),
-            Self::GreaterThan => ">".to_string(),
-            Self::NewLine => "\n".to_string(),
-
-            Self::LeftBracket => "[".to_string(),
-            Self::RightBracket => "]".to_string(),
-            Self::LeftParen => "(".to_string(),
-            Self::RightParen => ")".to_string(),
-            Self::Exclamation => "!".to_string(),
-            Self::UnorderedListItem => "-".to_string(),
-            Self::OrderedListItem => "1.".to_string(),
-
-            Self::Backtick => "`".to_string(),
-            Self::TripleBacktick => "```".to_string(),
-
-            Self::EOF => "EOF".to_string(),
+            TokenType::H1 => "#".to_string(),
+            TokenType::H2 => "##".to_string(),
+            TokenType::H3 => "###".to_string(),
+            TokenType::H4 => "####".to_string(),
+            TokenType::H5 => "#####".to_string(),
+            TokenType::H6 => "######".to_string(),
+            TokenType::Text => "TEXT_TYPE".to_string(),
+            TokenType::Asterisk => "*".to_string(),
+            TokenType::DoubleAsterisk => "**".to_string(),
+            TokenType::GreaterThan => ">".to_string(),
+            TokenType::NewLine => "\n".to_string(),
+            TokenType::LeftBracket => "[".to_string(),
+            TokenType::RightBracket => "]".to_string(),
+            TokenType::LeftParen => "(".to_string(),
+            TokenType::RightParen => ")".to_string(),
+            TokenType::Exclamation => "!".to_string(),
+            TokenType::UnorderedListItem => "-".to_string(),
+            TokenType::OrderedListItem => "1.".to_string(),
+            TokenType::Backtick => "`".to_string(),
+            TokenType::TripleBacktick => "```".to_string(),
+            TokenType::LeftDoubleBrace => "{{".to_string(),
+            TokenType::RightDoubleBrace => "}}".to_string(),
+            TokenType::KeywordStart => "{%".to_string(),
+            TokenType::KeywordEnd => "%}".to_string(),
+            TokenType::EOF => "EOF".to_string(),
+            TokenType::If => "if".to_string(),
+            TokenType::EndIf => "endif".to_string(),
+            TokenType::For => "for".to_string(),
+            TokenType::EndFor => "endfor".to_string(),
+            TokenType::In => "in".to_string(),
+            TokenType::Import => "import".to_string(),
+            TokenType::Include => "include".to_string(),
         }
     }
 }

@@ -172,7 +172,68 @@ impl Lexer {
                 if next_char == '[' {
                     Token::new(TokenType::Exclamation, "!".to_string(), self.line, self.col)
                 } else {
-                    Token::new(TokenType::Text, "!".to_string(), 0, 0)
+                    Token::new(TokenType::Text, "!".to_string(), self.line, self.col)
+                }
+            }
+            Some('{') => {
+                let start_line = self.line;
+                let start_col = self.col;
+
+                let token = match self.peek_char(1) {
+                    '{' => {
+                        self.read_char();
+                        Token::new(
+                            TokenType::LeftDoubleBrace,
+                            "{{".to_string(),
+                            start_line,
+                            start_col,
+                        )
+                    }
+                    '%' => {
+                        self.read_char();
+                        Token::new(
+                            TokenType::KeywordStart,
+                            "{%".to_string(),
+                            start_line,
+                            start_col,
+                        )
+                    }
+                    _ => Token::new(TokenType::Text, "{".to_string(), start_line, start_col),
+                };
+                token
+            }
+            Some('%') => {
+                let next_char = self.peek_char(1);
+                let start_line = self.line;
+                let start_col = self.col;
+
+                if next_char == '}' {
+                    self.read_char();
+                    Token::new(
+                        TokenType::KeywordEnd,
+                        "%}".to_string(),
+                        start_line,
+                        start_col,
+                    )
+                } else {
+                    Token::new(TokenType::Text, "%".to_string(), start_line, start_col)
+                }
+            }
+            Some('}') => {
+                let next_char = self.peek_char(1);
+                let start_line = self.line;
+                let start_col = self.col;
+
+                if next_char == '}' {
+                    self.read_char();
+                    Token::new(
+                        TokenType::RightDoubleBrace,
+                        "}}".to_string(),
+                        start_line,
+                        start_col,
+                    )
+                } else {
+                    Token::new(TokenType::Text, "}".to_string(), start_line, start_col)
                 }
             }
             None => Token::new(TokenType::EOF, "".to_string(), self.line, self.col),
@@ -767,6 +828,110 @@ let x = 15;
             Token::new(TokenType::Text, "HEllo World".to_string(), 0, 0),
             Token::new(TokenType::NewLine, "\n".to_string(), 0, 0),
             Token::new(TokenType::Text, "Something interesting".to_string(), 0, 0),
+            Token::new(TokenType::EOF, "".to_string(), 0, 0),
+        ];
+
+        for t in expected_tokens {
+            let token = l.next_token();
+            assert_eq!(t.token_type, token.token_type);
+            assert_eq!(t.literal, token.literal);
+        }
+    }
+
+    #[test]
+    fn test_double_braces_with_keywords_and_lists() {
+        let input = "\
+Hello {{ 2 + 2 }}
+### Participants:
+{% for name in person %}
+- Hello {{ name }}
+{% endfor %}";
+        let mut l = Lexer::from(input);
+        let start_col = 0;
+        let start_line = 0;
+
+        let expected_tokens = vec![
+            Token::new(TokenType::Text, "Hello ".to_string(), 0, 0),
+            Token::new(TokenType::LeftDoubleBrace, "{{".to_string(), 0, 0),
+            Token::new(
+                TokenType::Text,
+                " admin ".to_string(),
+                start_col,
+                start_line,
+            ),
+            Token::new(
+                TokenType::RightDoubleBrace,
+                "}}".to_string(),
+                start_line,
+                start_col,
+            ),
+            Token::new(TokenType::NewLine, "\n".to_string(), start_line, start_col),
+            Token::new(TokenType::H3, "###".to_string(), start_line, start_col),
+            Token::new(
+                TokenType::Text,
+                " Participants:".to_string(),
+                start_line,
+                start_col,
+            ),
+            Token::new(TokenType::NewLine, "\n".to_string(), start_line, start_col),
+            Token::new(
+                TokenType::KeywordStart,
+                "{%".to_string(),
+                start_line,
+                start_col,
+            ),
+            Token::new(
+                TokenType::Text,
+                " for name in person ".to_string(),
+                start_line,
+                start_col,
+            ),
+            Token::new(
+                TokenType::KeywordEnd,
+                "%}".to_string(),
+                start_line,
+                start_col,
+            ),
+            Token::new(TokenType::NewLine, "\n".to_string(), start_line, start_col),
+            Token::new(
+                TokenType::UnorderedListItem,
+                "-".to_string(),
+                start_line,
+                start_col,
+            ),
+            Token::new(TokenType::Text, "Hello ".to_string(), start_line, start_col),
+            Token::new(
+                TokenType::LeftDoubleBrace,
+                "{{".to_string(),
+                start_line,
+                start_col,
+            ),
+            Token::new(TokenType::Text, " name ".to_string(), start_line, start_col),
+            Token::new(
+                TokenType::RightDoubleBrace,
+                "}}".to_string(),
+                start_line,
+                start_col,
+            ),
+            Token::new(TokenType::NewLine, "\n".to_string(), start_line, start_col),
+            Token::new(
+                TokenType::KeywordStart,
+                "{%".to_string(),
+                start_line,
+                start_col,
+            ),
+            Token::new(
+                TokenType::Text,
+                " endfor ".to_string(),
+                start_line,
+                start_col,
+            ),
+            Token::new(
+                TokenType::KeywordEnd,
+                "%}".to_string(),
+                start_line,
+                start_col,
+            ),
             Token::new(TokenType::EOF, "".to_string(), 0, 0),
         ];
 

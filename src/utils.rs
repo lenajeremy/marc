@@ -30,7 +30,15 @@ pub fn is_block_level_token(t: token::TokenType) -> bool {
 
 pub fn is_inline_token(ch: Option<char>) -> bool {
     match ch {
-        Some('*') | Some('[') | Some(']') | Some('(') | Some(')') | Some('!') | Some('`') => true,
+        Some('*') | Some('[') | Some(']') | Some('(') | Some(')') | Some('!') | Some('`')
+        | Some('{') | Some('%') | Some('}') => true,
+        _ => false,
+    }
+}
+
+pub fn is_keyword(t: &str) -> bool {
+    match t {
+        "for" | "endfor" | "in" | "includes" | "import" | "if" | "endif" => true,
         _ => false,
     }
 }
