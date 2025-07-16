@@ -2,11 +2,13 @@ use crate::{
     Block, Inline, Lexer, Node, Program, Token, TokenType,
     block_quote::BlockQuote,
     code::{CodeBlock, InlineCode},
+    expression::Expression,
     heading::Heading,
     image::Image,
     inline_container::InlineContainer,
     link::Link,
     list::{ListItem, OrderedList, UnorderedList},
+    marcblocks::{ForBlock, MarcBlock},
     text::{BoldText, ItalicizedText, ParagraphText, Text},
 };
 
@@ -76,7 +78,7 @@ impl Parser {
                 TokenType::NewLine => Box::new(Text::new(token.literal)),
                 TokenType::LeftDoubleBrace => todo!(),
                 TokenType::RightDoubleBrace => todo!(),
-                TokenType::KeywordStart => todo!(),
+                TokenType::KeywordStart => self.parse_keyword(),
                 TokenType::KeywordEnd => todo!(),
                 TokenType::If => todo!(),
                 TokenType::EndIf => todo!(),
@@ -107,6 +109,23 @@ impl Parser {
             None
         }
     }
+
+    fn parse_keyword(&mut self) -> Box<MarcBlock> {
+        println!("parsing keyword");
+        self.advance_token();
+
+        let curr_token = self.curr_token.clone().unwrap();
+        match curr_token.token_type {
+            TokenType::For => {
+                //let for_block = ForBlock::new(list, variable){}
+            }
+            _ => {
+                panic!("invalid token")
+            }
+        }
+    }
+
+    fn expect_next_token_or(&self, token: TokenType) -> bool {}
 
     fn parse_text(&mut self) -> Box<dyn Node> {
         println!("parsing text...");

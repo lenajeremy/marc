@@ -2,11 +2,14 @@ use std::any::Any;
 
 pub mod block_quote;
 pub mod code;
+pub mod comparator;
+pub mod expression;
 pub mod heading;
 pub mod image;
 pub mod inline_container;
 pub mod link;
 pub mod list;
+pub mod marcblocks;
 pub mod text;
 
 pub trait Node: Any {

@@ -1,5 +1,7 @@
 use crate::token::{self, TokenType};
 
+pub const KEYWORDS: [&str; 7] = ["for", "endfor", "in", "includes", "import", "if", "endif"];
+
 pub fn is_alphanumeric(ch: Option<char>) -> bool {
     match ch {
         Some(ch) => ch.is_alphanumeric(),
@@ -37,8 +39,5 @@ pub fn is_inline_token(ch: Option<char>) -> bool {
 }
 
 pub fn is_keyword(t: &str) -> bool {
-    match t {
-        "for" | "endfor" | "in" | "includes" | "import" | "if" | "endif" => true,
-        _ => false,
-    }
+    KEYWORDS.contains(&t)
 }
