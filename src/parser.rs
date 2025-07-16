@@ -1,5 +1,3 @@
-use std::clone;
-
 use crate::{
     Block, Inline, Lexer, Node, Program, Token, TokenType,
     block_quote::BlockQuote,

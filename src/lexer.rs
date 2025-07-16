@@ -271,6 +271,17 @@ impl Lexer {
         self.src[start..self.position].to_string()
     }
 
+    //fn prev_char(&self) -> char {
+    //    println!("calling prev_char {self:?}");
+    //    if self.position == 0 {
+    //        '\0'
+    //    } else {
+    //        let prev = self.src[(self.position - 1)..].chars().next().unwrap();
+    //        println!("prev is {}", prev);
+    //        prev
+    //    }
+    //}
+
     fn peek_char(&self, distance: usize) -> char {
         let char_index = self.position + distance;
         if char_index >= self.src.len() {
@@ -841,10 +852,12 @@ let x = 15;
     #[test]
     fn test_double_braces_with_keywords_and_lists() {
         let input = "\
-Hello {{ 2 + 2 }}
+Hello {{ admin }}
 ### Participants:
 {% for name in person %}
 - Hello {{ name }}
+- Hello {{ name.upper() }}
+- Hello {{ name[0] }}
 {% endfor %}";
         let mut l = Lexer::from(input);
         let start_col = 0;
@@ -915,6 +928,75 @@ Hello {{ 2 + 2 }}
             ),
             Token::new(TokenType::NewLine, "\n".to_string(), start_line, start_col),
             Token::new(
+                TokenType::UnorderedListItem,
+                "-".to_string(),
+                start_line,
+                start_col,
+            ),
+            Token::new(TokenType::Text, "Hello ".to_string(), start_line, start_col),
+            Token::new(
+                TokenType::LeftDoubleBrace,
+                "{{".to_string(),
+                start_line,
+                start_col,
+            ),
+            Token::new(
+                TokenType::Text,
+                " name.upper".to_string(),
+                start_line,
+                start_col,
+            ),
+            Token::new(TokenType::LeftParen, "(".to_string(), start_line, start_col),
+            Token::new(
+                TokenType::RightParen,
+                ")".to_string(),
+                start_line,
+                start_col,
+            ),
+            Token::new(TokenType::Text, " ".to_string(), start_line, start_col),
+            Token::new(
+                TokenType::RightDoubleBrace,
+                "}}".to_string(),
+                start_line,
+                start_col,
+            ),
+            Token::new(TokenType::NewLine, "\n".to_string(), start_line, start_col),
+            Token::new(
+                TokenType::UnorderedListItem,
+                "-".to_string(),
+                start_line,
+                start_col,
+            ),
+            Token::new(TokenType::Text, "Hello ".to_string(), start_line, start_col),
+            Token::new(
+                TokenType::LeftDoubleBrace,
+                "{{".to_string(),
+                start_line,
+                start_col,
+            ),
+            Token::new(TokenType::Text, " name".to_string(), start_line, start_col),
+            Token::new(
+                TokenType::LeftBracket,
+                "[".to_string(),
+                start_line,
+                start_col,
+            ),
+            Token::new(TokenType::Text, "0".to_string(), start_line, start_col),
+            Token::new(
+                TokenType::RightBracket,
+                "]".to_string(),
+                start_line,
+                start_col,
+            ),
+            Token::new(TokenType::Text, " ".to_string(), start_line, start_col),
+            Token::new(
+                TokenType::RightDoubleBrace,
+                "}}".to_string(),
+                start_line,
+                start_col,
+            ),
+            Token::new(TokenType::NewLine, "\n".to_string(), start_line, start_col),
+            Token::new(
                 TokenType::KeywordStart,
                 "{%".to_string(),
                 start_line,
@@ -937,6 +1019,7 @@ Hello {{ 2 + 2 }}
 
         for t in expected_tokens {
             let token = l.next_token();
+            println!("Expected: {:?}\nGot: {:?}", t, token);
             assert_eq!(t.token_type, token.token_type);
             assert_eq!(t.literal, token.literal);
         }
