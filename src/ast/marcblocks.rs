@@ -1,24 +1,19 @@
 use crate::{
     Node,
-    comparator::Comparator,
     expression::{Expression, VariableAccessExpression},
 };
 
 pub struct IfBlock {
-    left: Expression,
-    comparison: Comparator,
-    right: Expression,
+    expression: Expression,
     valid: Vec<Expression>,
     invalid: Vec<Expression>,
     literal: String,
 }
 
 impl IfBlock {
-    pub fn new(left: Expression, right: Expression, comparison: Comparator) -> IfBlock {
+    pub fn new(expression: Expression) -> IfBlock {
         IfBlock {
-            left: left,
-            comparison: comparison,
-            right: right,
+            expression: expression,
             valid: vec![],
             invalid: vec![],
             literal: String::new(),

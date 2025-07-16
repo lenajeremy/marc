@@ -8,7 +8,7 @@ use crate::{
     inline_container::InlineContainer,
     link::Link,
     list::{ListItem, OrderedList, UnorderedList},
-    marcblocks::{ForBlock, MarcBlock},
+    marcblocks::{IfBlock, MarcBlock},
     text::{BoldText, ItalicizedText, ParagraphText, Text},
 };
 
@@ -78,8 +78,8 @@ impl Parser {
                 TokenType::NewLine => Box::new(Text::new(token.literal)),
                 TokenType::LeftDoubleBrace => todo!(),
                 TokenType::RightDoubleBrace => todo!(),
-                TokenType::KeywordStart => self.parse_keyword(),
-                TokenType::KeywordEnd => todo!(),
+                TokenType::KeywordStart => self.parse_keyword_block(),
+                TokenType::KeywordEnd => self.parse_text(),
                 TokenType::If => todo!(),
                 TokenType::EndIf => todo!(),
                 TokenType::For => todo!(),
@@ -88,6 +88,8 @@ impl Parser {
                 TokenType::Import => todo!(),
                 TokenType::Include => todo!(),
                 TokenType::EOF => break,
+                TokenType::True => todo!(),
+                TokenType::False => todo!(),
             };
             println!("done parsing {}", block.token_literal());
 
@@ -110,14 +112,20 @@ impl Parser {
         }
     }
 
-    fn parse_keyword(&mut self) -> Box<MarcBlock> {
-        println!("parsing keyword");
+    fn parse_keyword_block(&mut self) -> Box<MarcBlock> {
+        println!("parsing keyword block");
         self.advance_token();
 
         let curr_token = self.curr_token.clone().unwrap();
+        println!("curr_token: {:?}", curr_token);
         match curr_token.token_type {
-            TokenType::For => {
-                //let for_block = ForBlock::new(list, variable){}
+            //TokenType::For => {
+            //    println!("for block");
+            //    //let for_block = ForBlock::new(list, variable){}
+            //}
+            TokenType::If => {
+                let if_block = self.parse_if_block();
+                Box::new(MarcBlock::If(if_block))
             }
             _ => {
                 panic!("invalid token")
@@ -125,7 +133,19 @@ impl Parser {
         }
     }
 
-    fn expect_next_token_or(&self, token: TokenType) -> bool {}
+    fn parse_if_block(&mut self) -> IfBlock {
+        println!("parsing if block");
+        println!("{:?}", self.curr_token);
+        IfBlock::new(Expression::Empty)
+    }
+
+    fn parse_expression(&mut self) -> Expression {
+        Expression::Empty
+    }
+
+    fn expect_next_token_or(&self, token: TokenType) -> bool {
+        false
+    }
 
     fn parse_text(&mut self) -> Box<dyn Node> {
         println!("parsing text...");

@@ -45,13 +45,13 @@ impl Lexer {
     }
 
     pub fn eat_whitespace(&mut self) {
+        println!("eating whitespace, \"{:?}\"", self.ch);
         while self.ch == Some(' ') {
             self.read_char();
         }
     }
 
     pub fn next_token(&mut self) -> Token {
-        //self.eat_whitespace();
         let token = match self.ch {
             Some('#') => {
                 if self.col > 1 {
@@ -190,7 +190,7 @@ impl Lexer {
                         )
                     }
                     '%' => {
-                        self.read_char();
+                        self.read_char(); // moves self.ch to equal %
                         Token::new(
                             TokenType::KeywordStart,
                             "{%".to_string(),
@@ -253,7 +253,17 @@ impl Lexer {
                 }
 
                 let text = self.read_until_newline_or_inline_token();
-                return Token::new(TokenType::Text, text.clone(), start_line, start_col);
+
+                match text.as_str() {
+                    "if" => Token::new(TokenType::If, text, start_line, start_col),
+                    "endif" => Token::new(TokenType::EndIf, text, start_line, start_col),
+                    "for" => Token::new(TokenType::For, text, start_line, start_col),
+                    "endfor" => Token::new(TokenType::EndFor, text, start_line, start_col),
+                    "include" => Token::new(TokenType::Include, text, start_line, start_col),
+                    "import" => Token::new(TokenType::Import, text, start_line, start_col),
+                    "in" => Token::new(TokenType::In, text, start_line, start_col),
+                    _ => Token::new(TokenType::Text, text, start_line, start_col),
+                }
             }
         };
 
@@ -265,6 +275,12 @@ impl Lexer {
         let start = self.position;
 
         while !utils::is_inline_token(self.ch) && self.ch != Some('\n') && self.ch != None {
+            if self.ch.is_some() && self.ch.unwrap() == ' ' {
+                let word = self.src[start..self.position].trim().to_string();
+                if utils::is_keyword(&word) {
+                    return word;
+                }
+            }
             self.read_char();
         }
 

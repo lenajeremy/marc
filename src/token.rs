@@ -35,6 +35,8 @@ pub enum TokenType {
     In,
     Import,
     Include,
+    True,
+    False,
 
     Text,
     NewLine,
@@ -77,6 +79,8 @@ impl TokenType {
             TokenType::In => "in".to_string(),
             TokenType::Import => "import".to_string(),
             TokenType::Include => "include".to_string(),
+            TokenType::True => "true".to_string(),
+            TokenType::False => "false".to_string(),
         }
     }
 }

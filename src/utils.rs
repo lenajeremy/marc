@@ -1,6 +1,8 @@
 use crate::token::{self, TokenType};
 
-pub const KEYWORDS: [&str; 7] = ["for", "endfor", "in", "includes", "import", "if", "endif"];
+pub const KEYWORDS: [&str; 9] = [
+    "for", "endfor", "in", "includes", "import", "if", "endif", "true", "false",
+];
 
 pub fn is_alphanumeric(ch: Option<char>) -> bool {
     match ch {

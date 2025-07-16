@@ -1,15 +1,15 @@
-use super::Node;
+use super::{Node, operators::Op};
 
 pub struct BinaryExpression {
     left: Box<Expression>,
     right: Box<Expression>,
-    operator: String,
+    operator: Op,
 }
 
 impl BinaryExpression {
     fn literal(&self) -> String {
         format!(
-            "{} {} {}",
+            "{} {:?} {}",
             self.left.token_literal(),
             self.operator,
             self.right.token_literal()
@@ -54,6 +54,9 @@ pub enum Expression {
     VariableAccess(VariableAccessExpression),
     ObjectAccess(ObjectAccessExpression),
     ArrayAccess(ArrayAccessExpression),
+    True,
+    False,
+    Empty,
 }
 
 impl Node for Expression {
@@ -63,6 +66,9 @@ impl Node for Expression {
             Self::VariableAccess(e) => e.literal(),
             Self::ArrayAccess(e) => e.literal(),
             Self::ObjectAccess(e) => e.literal(),
+            Self::True => "true".to_string(),
+            Self::False => "false".to_string(),
+            Self::Empty => "".to_string(),
         }
     }
 
