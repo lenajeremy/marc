@@ -1,4 +1,3 @@
-#![allow(warnings)]
 use md_to_html::{Lexer, Node, Parser};
 use std::env;
 
