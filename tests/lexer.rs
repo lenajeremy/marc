@@ -25,7 +25,9 @@ fn test_headings() {
         TokenType::EOF,
     ];
     for token_type in expected {
-        assert_eq!(lexer.next_token().token_type, token_type);
+        let token = lexer.next_token();
+        println!("expected {:?}, got {:?}", token_type, token);
+        assert_eq!(token.token_type, token_type);
     }
 }
 
@@ -817,12 +819,7 @@ Hello {{ admin }}
     let expected_tokens = vec![
         Token::new(TokenType::Text, "Hello ".to_string(), 0, 0),
         Token::new(TokenType::LeftDoubleBrace, "{{".to_string(), 0, 0),
-        Token::new(
-            TokenType::Text,
-            " admin ".to_string(),
-            start_col,
-            start_line,
-        ),
+        Token::new(TokenType::Text, "admin ".to_string(), start_col, start_line),
         Token::new(
             TokenType::RightDoubleBrace,
             "}}".to_string(),
@@ -844,9 +841,10 @@ Hello {{ admin }}
             start_line,
             start_col,
         ),
+        Token::new(TokenType::For, "for".to_string(), start_line, start_col),
         Token::new(
             TokenType::Text,
-            " for name in person ".to_string(),
+            "name in person ".to_string(),
             start_line,
             start_col,
         ),
@@ -870,7 +868,7 @@ Hello {{ admin }}
             start_line,
             start_col,
         ),
-        Token::new(TokenType::Text, " name ".to_string(), start_line, start_col),
+        Token::new(TokenType::Text, "name ".to_string(), start_line, start_col),
         Token::new(
             TokenType::RightDoubleBrace,
             "}}".to_string(),
@@ -893,7 +891,7 @@ Hello {{ admin }}
         ),
         Token::new(
             TokenType::Text,
-            " name.upper".to_string(),
+            "name.upper".to_string(),
             start_line,
             start_col,
         ),
@@ -925,7 +923,7 @@ Hello {{ admin }}
             start_line,
             start_col,
         ),
-        Token::new(TokenType::Text, " name".to_string(), start_line, start_col),
+        Token::new(TokenType::Text, "name".to_string(), start_line, start_col),
         Token::new(
             TokenType::LeftBracket,
             "[".to_string(),
@@ -954,8 +952,8 @@ Hello {{ admin }}
             start_col,
         ),
         Token::new(
-            TokenType::Text,
-            " endfor ".to_string(),
+            TokenType::EndFor,
+            "endfor".to_string(),
             start_line,
             start_col,
         ),
@@ -973,5 +971,49 @@ Hello {{ admin }}
         println!("Expected: {:?}\nGot: {:?}", t, token);
         assert_eq!(t.token_type, token.token_type);
         assert_eq!(t.literal, token.literal);
+    }
+}
+
+#[test]
+fn test_array_access_expression() {
+    let input = "{{ array[0] }}";
+    let mut l = Lexer::from(input);
+    let start_line = 0;
+    let start_col = 0;
+
+    let expected_tokens = vec![
+        Token::new(
+            TokenType::LeftDoubleBrace,
+            "{{".to_string(),
+            start_line,
+            start_col,
+        ),
+        Token::new(TokenType::Text, "array".to_string(), start_line, start_col),
+        Token::new(
+            TokenType::LeftBracket,
+            "[".to_string(),
+            start_line,
+            start_col,
+        ),
+        Token::new(TokenType::Text, "0".to_string(), start_line, start_col),
+        Token::new(
+            TokenType::RightBracket,
+            "]".to_string(),
+            start_line,
+            start_col,
+        ),
+        Token::new(TokenType::Text, " ".to_string(), start_line, start_col),
+        Token::new(
+            TokenType::RightDoubleBrace,
+            "}}".to_string(),
+            start_line,
+            start_col,
+        ),
+    ];
+    for expected in expected_tokens {
+        let token = l.next_token();
+        println!("Expected {expected:?}\nGot {token:?}");
+        assert_eq!(token.token_type, expected.token_type);
+        assert_eq!(token.literal, expected.literal);
     }
 }

@@ -1,4 +1,4 @@
-use crate::{is_numeric, token::*, utils};
+use crate::{KEYWORDS, is_numeric, token::*, utils};
 use std::cmp::min;
 
 #[derive(Debug)]
@@ -56,6 +56,29 @@ impl Lexer {
         println!("eating whitespace, \"{:?}\"", self.ch);
         while self.ch == Some(' ') {
             self.read_char();
+        }
+    }
+
+    pub fn next_word(&mut self) -> Token {
+        self.eat_whitespace();
+        let start_position = self.position;
+        let start_line = self.line;
+        let start_col = self.col;
+
+        while self.ch.unwrap() != ' ' {
+            self.read_char();
+        }
+
+        let text = self.src[start_position..self.position].to_string();
+        match text.as_str() {
+            "if" => Token::new(TokenType::If, text, start_line, start_col),
+            "endif" => Token::new(TokenType::EndIf, text, start_line, start_col),
+            "for" => Token::new(TokenType::For, text, start_line, start_col),
+            "endfor" => Token::new(TokenType::EndFor, text, start_line, start_col),
+            "include" => Token::new(TokenType::Include, text, start_line, start_col),
+            "import" => Token::new(TokenType::Import, text, start_line, start_col),
+            "in" => Token::new(TokenType::In, text, start_line, start_col),
+            _ => Token::new(TokenType::Text, text, start_line, start_col),
         }
     }
 
@@ -190,6 +213,8 @@ impl Lexer {
                 let token = match self.peek_char(1) {
                     '{' => {
                         self.read_char();
+                        self.read_char();
+                        self.eat_whitespace();
                         Token::new(
                             TokenType::LeftDoubleBrace,
                             "{{".to_string(),
@@ -198,7 +223,9 @@ impl Lexer {
                         )
                     }
                     '%' => {
-                        self.read_char(); // moves self.ch to equal %
+                        self.read_char();
+                        self.read_char();
+                        self.eat_whitespace();
                         Token::new(
                             TokenType::KeywordStart,
                             "{%".to_string(),
@@ -208,7 +235,7 @@ impl Lexer {
                     }
                     _ => Token::new(TokenType::Text, "{".to_string(), start_line, start_col),
                 };
-                token
+                return token;
             }
             Some('%') => {
                 let next_char = self.peek_char(1);
@@ -261,8 +288,7 @@ impl Lexer {
                 }
 
                 let text = self.read_until_newline_or_inline_token();
-
-                match text.as_str() {
+                let token = match text.as_str() {
                     "if" => Token::new(TokenType::If, text, start_line, start_col),
                     "endif" => Token::new(TokenType::EndIf, text, start_line, start_col),
                     "for" => Token::new(TokenType::For, text, start_line, start_col),
@@ -271,7 +297,13 @@ impl Lexer {
                     "import" => Token::new(TokenType::Import, text, start_line, start_col),
                     "in" => Token::new(TokenType::In, text, start_line, start_col),
                     _ => Token::new(TokenType::Text, text, start_line, start_col),
+                };
+
+                if token.token_type != TokenType::Text {
+                    self.eat_whitespace();
                 }
+
+                return token;
             }
         };
 
