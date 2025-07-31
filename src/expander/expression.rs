@@ -2,13 +2,13 @@ use std::collections::HashMap;
 
 use super::{Node, operators::Op};
 
-pub struct BinaryExpression {
+pub struct InfixExpression {
     left: Box<Expression>,
     right: Box<Expression>,
     operator: Op,
 }
 
-impl BinaryExpression {
+impl InfixExpression {
     fn literal(&self) -> String {
         format!(
             "{} {:?} {}",
@@ -16,6 +16,17 @@ impl BinaryExpression {
             self.operator,
             self.right.token_literal()
         )
+    }
+}
+
+pub struct PrefixExpression {
+    operator: Op,
+    right: Box<Expression>,
+}
+
+impl PrefixExpression {
+    fn literal(&self) -> String {
+        format!("{}{}", self.operator.string(), self.right.token_literal())
     }
 }
 
@@ -101,12 +112,23 @@ impl FunctionCallExpression {
     }
 }
 
+pub struct IntegerExpression {
+    value: i64,
+}
+
+impl IntegerExpression {
+    fn literal(&self) -> String {
+        format!("Integer({})", self.value)
+    }
+}
+
 pub enum Expression {
-    Binary(BinaryExpression),
+    Binary(InfixExpression),
     VariableAccess(VariableAccessExpression),
     ObjectAccess(ObjectAccessExpression),
     ArrayAccess(ArrayAccessExpression),
     FunctionCall(FunctionCallExpression),
+    IntegerExpression(IntegerExpression),
     True,
     False,
     Empty,
@@ -120,6 +142,7 @@ impl Node for Expression {
             Self::ArrayAccess(e) => e.literal(),
             Self::ObjectAccess(e) => e.literal(),
             Self::FunctionCall(e) => e.literal(),
+            Self::IntegerExpression(i) => i.literal(),
             Self::True => "true".to_string(),
             Self::False => "false".to_string(),
             Self::Empty => "".to_string(),

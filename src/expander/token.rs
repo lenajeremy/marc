@@ -1,31 +1,32 @@
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Clone, Debug)]
 pub enum TokenType {
-    H1,
-    H2,
-    H3,
-    H4,
-    H5,
-    H6,
+    Text,
+    NewLine,
 
-    Asterisk,
-    DoubleAsterisk,
-    GreaterThan,
-    Backtick,
-    TripleBacktick,
-    LeftBracket,
-    RightBracket,
-    LeftParen,
-    RightParen,
-    Exclamation,
+    // Symbols
+    LeftDoubleBrace,  // {{
+    RightDoubleBrace, // }}
+    KeywordStart,     // {%
+    KeywordEnd,       // %}
+    LeftBracket,      // {
+    RightBracket,     // }
+    LeftParen,        // (
+    RightParen,       // )
+    Exclamation,      // !
+    Assign,           // =
 
-    UnorderedListItem,
-    OrderedListItem,
+    // Math Operators
+    Asterisk,     // *
+    ForwardSlash, // /
+    Minus,        // -
+    Plus,         // +
 
-    // Templating related syntax
-    LeftDoubleBrace,
-    RightDoubleBrace,
-    KeywordStart,
-    KeywordEnd,
+    // Comparators
+    GreaterThan, // >
+    LessThan,    // <
+    GreQual,     // >=
+    LeQual,      // <=
+    Equals,      // ==
 
     // Keywords
     If,
@@ -38,35 +39,24 @@ pub enum TokenType {
     True,
     False,
 
-    Text,
-    NewLine,
-
+    // Others
+    Dot,
     EOF,
+    At,
 }
 
 impl TokenType {
     pub fn as_string(&self) -> String {
         match self {
-            TokenType::H1 => "#".to_string(),
-            TokenType::H2 => "##".to_string(),
-            TokenType::H3 => "###".to_string(),
-            TokenType::H4 => "####".to_string(),
-            TokenType::H5 => "#####".to_string(),
-            TokenType::H6 => "######".to_string(),
             TokenType::Text => "TEXT_TYPE".to_string(),
-            TokenType::Asterisk => "*".to_string(),
-            TokenType::DoubleAsterisk => "**".to_string(),
             TokenType::GreaterThan => ">".to_string(),
+            TokenType::Dot => ".".to_string(),
             TokenType::NewLine => "\n".to_string(),
             TokenType::LeftBracket => "[".to_string(),
             TokenType::RightBracket => "]".to_string(),
             TokenType::LeftParen => "(".to_string(),
             TokenType::RightParen => ")".to_string(),
             TokenType::Exclamation => "!".to_string(),
-            TokenType::UnorderedListItem => "-".to_string(),
-            TokenType::OrderedListItem => "1.".to_string(),
-            TokenType::Backtick => "`".to_string(),
-            TokenType::TripleBacktick => "```".to_string(),
             TokenType::LeftDoubleBrace => "{{".to_string(),
             TokenType::RightDoubleBrace => "}}".to_string(),
             TokenType::KeywordStart => "{%".to_string(),
@@ -81,6 +71,16 @@ impl TokenType {
             TokenType::Include => "include".to_string(),
             TokenType::True => "true".to_string(),
             TokenType::False => "false".to_string(),
+            TokenType::Assign => "=".to_string(),
+            TokenType::Asterisk => "*".to_string(),
+            TokenType::ForwardSlash => "/".to_string(),
+            TokenType::Minus => "-".to_string(),
+            TokenType::Plus => "+".to_string(),
+            TokenType::LessThan => "<".to_string(),
+            TokenType::GreQual => ">=".to_string(),
+            TokenType::LeQual => "<=".to_string(),
+            TokenType::Equals => "==".to_string(),
+            TokenType::At => "@".to_string(),
         }
     }
 }

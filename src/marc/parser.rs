@@ -1,16 +1,16 @@
-use crate::{
-    Block, Inline, Lexer, Node, Program, Token, TokenType,
+use crate::marc::ast::{
+    Block, Inline, Node, Program,
     block_quote::BlockQuote,
     code::{CodeBlock, InlineCode},
-    expression::{Expression, VariableAccessExpression},
     heading::Heading,
     image::Image,
     inline_container::InlineContainer,
     link::Link,
     list::{ListItem, OrderedList, UnorderedList},
-    marcblocks::{ForBlock, IfBlock, MarcBlock},
     text::{BoldText, ItalicizedText, ParagraphText, Text},
 };
+use crate::marc::lexer::Lexer;
+use crate::marc::token::{Token, TokenType};
 
 pub struct Parser {
     curr_token: Option<Token>,
@@ -38,10 +38,10 @@ impl Parser {
         self.peek_token = Some(self.lexer.next_token());
     }
 
-    fn advance_token_by_word(&mut self) {
-        self.curr_token = self.peek_token.clone();
-        self.peek_token = Some(self.lexer.next_word());
-    }
+    //fn advance_token_by_word(&mut self) {
+    //    self.curr_token = self.peek_token.clone();
+    //    self.peek_token = Some(self.lexer.next_word());
+    //}
 
     fn parse(&mut self, end_token: TokenType, parse_inline: bool) -> Option<Box<dyn Node>> {
         let mut inline_container = InlineContainer::new();
@@ -81,20 +81,12 @@ impl Parser {
                     list
                 }
                 TokenType::NewLine => Box::new(Text::new(token.literal)),
-                TokenType::LeftDoubleBrace => self.parse_expression(),
-                TokenType::RightDoubleBrace => todo!(),
-                TokenType::KeywordStart => self.parse_keyword_block(),
-                TokenType::KeywordEnd => self.parse_text(),
-                TokenType::If => todo!(),
-                TokenType::EndIf => todo!(),
-                TokenType::For => todo!(),
-                TokenType::EndFor => todo!(),
-                TokenType::In => todo!(),
-                TokenType::Import => todo!(),
-                TokenType::Include => todo!(),
-                TokenType::EOF => break,
-                TokenType::True => todo!(),
-                TokenType::False => todo!(),
+                TokenType::EOF => {
+                    break;
+                } //TokenType::LeftDoubleBrace => self.parse_expression(),
+                  //TokenType::RightDoubleBrace => todo!(),
+                  //TokenType::KeywordStart => self.parse_keyword_block(),
+                  //TokenType::KeywordEnd => self.parse_text(),
             };
             println!("done parsing {}", block.token_literal());
 
@@ -125,42 +117,42 @@ impl Parser {
         }
     }
 
-    fn parse_keyword_block(&mut self) -> Box<MarcBlock> {
-        println!("parsing keyword block");
-        self.advance_token_by_word();
+    //fn parse_keyword_block(&mut self) -> Box<MarcBlock> {
+    //    println!("parsing keyword block");
+    //    self.advance_token_by_word();
+    //
+    //    let curr_token = self.curr_token.clone().unwrap();
+    //    println!("curr_token: {:?}", curr_token);
+    //    match curr_token.token_type {
+    //        TokenType::For => {
+    //            let for_block = self.parse_for_block();
+    //            Box::new(MarcBlock::For(for_block))
+    //        }
+    //        TokenType::If => {
+    //            let if_block = self.parse_if_block();
+    //            Box::new(MarcBlock::If(if_block))
+    //        }
+    //        _ => {
+    //            panic!("invalid token")
+    //        }
+    //    }
+    //}
 
-        let curr_token = self.curr_token.clone().unwrap();
-        println!("curr_token: {:?}", curr_token);
-        match curr_token.token_type {
-            TokenType::For => {
-                let for_block = self.parse_for_block();
-                Box::new(MarcBlock::For(for_block))
-            }
-            TokenType::If => {
-                let if_block = self.parse_if_block();
-                Box::new(MarcBlock::If(if_block))
-            }
-            _ => {
-                panic!("invalid token")
-            }
-        }
-    }
+    //fn parse_if_block(&mut self) -> IfBlock {
+    //    println!("parsing if block");
+    //    println!("{:?}", self.curr_token);
+    //    IfBlock::new(Expression::Empty)
+    //}
 
-    fn parse_if_block(&mut self) -> IfBlock {
-        println!("parsing if block");
-        println!("{:?}", self.curr_token);
-        IfBlock::new(Expression::Empty)
-    }
+    //fn parse_expression(&mut self) -> Box<Expression> {
+    //    self.advance_token();
+    //    self.advance_token();
+    //    Box::new(Expression::Empty)
+    //}
 
-    fn parse_expression(&mut self) -> Box<Expression> {
-        self.advance_token();
-        self.advance_token();
-        Box::new(Expression::Empty)
-    }
-
-    fn expect_next_token_or(&self, token: TokenType) -> bool {
-        false
-    }
+    //fn expect_next_token_or(&self, token: TokenType) -> bool {
+    //    false
+    //}
 
     fn parse_text(&mut self) -> Box<dyn Node> {
         println!("parsing text...");
@@ -502,10 +494,10 @@ impl Parser {
         }
     }
 
-    fn parse_for_block(&self) -> ForBlock {
-        ForBlock::new(
-            VariableAccessExpression::new("".to_string()),
-            VariableAccessExpression::new("".to_string()),
-        )
-    }
+    //fn parse_for_block(&self) -> ForBlock {
+    //    ForBlock::new(
+    //        VariableAccessExpression::new("".to_string()),
+    //        VariableAccessExpression::new("".to_string()),
+    //    )
+    //}
 }

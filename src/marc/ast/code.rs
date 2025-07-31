@@ -1,8 +1,6 @@
 use std::any::Any;
 
-use crate::Block;
-
-use super::{Inline, Node};
+use super::{Block, Inline, Node};
 
 pub struct InlineCode {
     code_content: String,

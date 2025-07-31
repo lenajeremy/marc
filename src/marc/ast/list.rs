@@ -1,6 +1,4 @@
-use crate::inline_container::InlineContainer;
-
-use super::{Block, Node};
+use super::{Block, Node, inline_container::InlineContainer};
 
 pub struct UnorderedList {
     items: Vec<Box<dyn Node>>,
