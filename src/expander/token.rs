@@ -1,7 +1,9 @@
 #[derive(Clone, Debug)]
 pub enum TokenType {
     Text,
+    Identifier,
     NewLine,
+    Integer,
 
     // Symbols
     LeftDoubleBrace,  // {{
@@ -14,6 +16,7 @@ pub enum TokenType {
     RightParen,       // )
     Exclamation,      // !
     Assign,           // =
+    SingleQuote,      // '
 
     // Math Operators
     Asterisk,     // *
@@ -49,6 +52,7 @@ impl TokenType {
     pub fn as_string(&self) -> String {
         match self {
             TokenType::Text => "TEXT_TYPE".to_string(),
+            TokenType::Identifier => "IDENTIFIER".to_string(),
             TokenType::GreaterThan => ">".to_string(),
             TokenType::Dot => ".".to_string(),
             TokenType::NewLine => "\n".to_string(),
@@ -81,6 +85,8 @@ impl TokenType {
             TokenType::LeQual => "<=".to_string(),
             TokenType::Equals => "==".to_string(),
             TokenType::At => "@".to_string(),
+            TokenType::Integer => "INTEGER".to_string(),
+            TokenType::SingleQuote => "'".to_string(),
         }
     }
 }
