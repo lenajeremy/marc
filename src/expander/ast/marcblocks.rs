@@ -1,12 +1,17 @@
+use std::any::Any;
+
+use crate::expander::ast::MarcNode;
+
 use super::{
     Node,
     expression::{Expression, VariableAccessExpression},
+    text_node::TextNode,
 };
 
 pub struct IfBlock {
     expression: Expression,
-    valid: Vec<Expression>,
-    invalid: Vec<Expression>,
+    valid: Vec<Box<MarcNode>>,
+    invalid: Vec<Box<MarcNode>>,
     literal: String,
 }
 
@@ -20,11 +25,11 @@ impl IfBlock {
         }
     }
 
-    fn add_valid_block(&mut self, block: Expression) {
+    fn add_valid_block(&mut self, block: Box<MarcNode>) {
         self.valid.push(block)
     }
 
-    fn add_invalid_block(&mut self, block: Expression) {
+    fn add_invalid_block(&mut self, block: Box<MarcNode>) {
         self.invalid.push(block)
     }
 
@@ -33,10 +38,25 @@ impl IfBlock {
     }
 }
 
+impl Node for IfBlock {
+    fn token_literal(&self) -> String {
+        self.literal.clone()
+    }
+
+    fn translate(&self) -> String {
+        // this would be updated to take the scope
+        self.token_literal()
+    }
+
+    fn as_any(self: Box<Self>) -> Box<dyn std::any::Any> {
+        self
+    }
+}
+
 pub struct ForBlock {
     main_list: VariableAccessExpression,
     variable: VariableAccessExpression,
-    operations: Vec<Expression>,
+    operations: Vec<Box<dyn Node>>,
     literal: String,
 }
 
@@ -50,8 +70,8 @@ impl ForBlock {
         }
     }
 
-    pub fn add_operation(&mut self, expression: Expression) {
-        self.operations.push(expression)
+    pub fn add_operation(&mut self, node: Box<dyn Node>) {
+        self.operations.push(node)
     }
 
     pub fn set_literal(&mut self, literal: String) {
@@ -59,26 +79,16 @@ impl ForBlock {
     }
 }
 
-/// MarcBlock describes blocks that are unrelated to markdown. MarcBlocks are specific to
-/// code/template related blocks, e.g. if, for, while,etc blocks
-pub enum MarcBlock {
-    If(IfBlock),
-    For(ForBlock),
-}
-
-impl Node for MarcBlock {
+impl Node for ForBlock {
     fn token_literal(&self) -> String {
-        match self {
-            MarcBlock::For(b) => b.literal.clone(),
-            MarcBlock::If(b) => b.literal.clone(),
-        }
+        self.literal.to_owned()
     }
 
     fn translate(&self) -> String {
         self.token_literal()
     }
 
-    fn as_any(self: Box<Self>) -> Box<dyn std::any::Any> {
+    fn as_any(self: Box<Self>) -> Box<dyn Any> {
         self
     }
 }

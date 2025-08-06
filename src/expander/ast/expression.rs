@@ -122,13 +122,24 @@ impl IntegerExpression {
     }
 }
 
+pub struct StringExpression {
+    value: String,
+}
+
+impl StringExpression {
+    fn literal(&self) -> String {
+        self.value.to_owned()
+    }
+}
+
 pub enum Expression {
     Binary(InfixExpression),
     VariableAccess(VariableAccessExpression),
     ObjectAccess(ObjectAccessExpression),
     ArrayAccess(ArrayAccessExpression),
     FunctionCall(FunctionCallExpression),
-    IntegerExpression(IntegerExpression),
+    Integer(IntegerExpression),
+    String(StringExpression),
     True,
     False,
     Empty,
@@ -142,7 +153,8 @@ impl Node for Expression {
             Self::ArrayAccess(e) => e.literal(),
             Self::ObjectAccess(e) => e.literal(),
             Self::FunctionCall(e) => e.literal(),
-            Self::IntegerExpression(i) => i.literal(),
+            Self::Integer(i) => i.literal(),
+            Self::String(i) => i.literal(),
             Self::True => "true".to_string(),
             Self::False => "false".to_string(),
             Self::Empty => "".to_string(),
@@ -156,29 +168,4 @@ impl Node for Expression {
     fn as_any(self: Box<Self>) -> Box<dyn std::any::Any> {
         self
     }
-}
-
-fn dance(x: i32, y: i32) -> String {
-    String::from("hello world")
-}
-
-fn test(action: impl Fn(i32, i32) -> String) {
-    let res = action(50, 50);
-    let res2 = action(50, 50);
-}
-
-fn main() {
-    let cb = |x: i32, y: i32| {
-        println!("{}", x + y);
-        format!("{}", x + y)
-    };
-
-    let mut hm = HashMap::new();
-    hm.insert("hello".to_string(), cb);
-
-    let s = hm.get(&"hello".to_string()).unwrap();
-    let res = s(50, 100);
-
-    test(cb);
-    test(dance);
 }

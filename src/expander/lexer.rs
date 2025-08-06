@@ -60,8 +60,12 @@ impl Lexer {
         let start_line = self.line;
         let start_col = self.col;
 
-        while self.ch.unwrap().is_alphanumeric() {
-            self.read_char();
+        while let Some(ch) = self.ch {
+            if utils::is_alphanumeric(self.ch) {
+                self.read_char();
+            } else {
+                break;
+            }
         }
 
         let text = self.src[start_position..self.position].to_string();
@@ -75,6 +79,7 @@ impl Lexer {
             "in" => Token::new(TT::In, text, start_line, start_col),
             "false" => Token::new(TT::False, text, start_line, start_col),
             "true" => Token::new(TT::True, text, start_line, start_col),
+            "as" => Token::new(TT::As, text, start_line, start_col),
             _ => Token::new(TT::Identifier, text, start_line, start_col),
         };
 
@@ -87,7 +92,6 @@ impl Lexer {
             return Token::new(TT::EOF, "".to_string(), self.line, self.col);
         }
 
-        println!("{:?} {}", self.ch, self.is_detailed);
         if self.is_detailed {
             self.eat_whitespace();
         } else {
@@ -100,12 +104,17 @@ impl Lexer {
                 return Token::new(TT::NewLine, "\n".to_string(), start_line, start_col);
             }
 
+            if self.ch.unwrap() == '@' {
+                self.is_detailed = true;
+                self.read_char();
+                return Token::new(TT::At, "@".to_string(), start_line, start_col);
+            }
+
             while let Some(ch) = self.ch {
                 let next_char = self.peek_char(1);
                 if ch == '\n' || (ch == '{' && (next_char == '%' || next_char == '{')) {
-                    if ch != '\n' {
-                        self.is_detailed = true;
-                    }
+                    self.is_detailed = ch != '\n'; // if ch is the new line character,
+                    // self.is_detailed should be false,
                     break;
                 }
                 self.read_char();
@@ -118,6 +127,8 @@ impl Lexer {
         }
 
         let token = match self.ch {
+            Some('\n') => Token::new(TT::NewLine, "\n".to_string(), self.line, self.col),
+            Some('\"') => Token::new(TT::DoubleQuote, "\"".to_string(), self.line, self.col),
             Some('\'') => Token::new(TT::SingleQuote, "'".to_string(), self.line, self.col),
             Some('>') => Token::new(TT::GreaterThan, ">".to_string(), self.line, self.col),
             Some('-') => Token::new(TT::Minus, "-".to_string(), self.line, self.col),
@@ -128,6 +139,12 @@ impl Lexer {
             Some('(') => Token::new(TT::LeftParen, "(".to_string(), self.line, self.col),
             Some(')') => Token::new(TT::RightParen, ")".to_string(), self.line, self.col),
             Some('!') => Token::new(TT::Exclamation, "!".to_string(), self.line, self.col),
+            Some(';') => {
+                if self.peek_char(1) == '\n' {
+                    self.is_detailed = false;
+                }
+                Token::new(TT::Semicolon, ";".to_string(), self.line, self.col)
+            }
             Some('=') => {
                 let peek_char = self.peek_char(1);
                 if peek_char == '=' {
@@ -237,7 +254,7 @@ impl Lexer {
         }
     }
 
-    pub fn read_char(&mut self) {
+    fn read_char(&mut self) {
         self.ch = self.src[self.read_position..].chars().next();
         self.position = self.read_position;
         if let Some(x) = self.ch {

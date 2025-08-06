@@ -1,4 +1,4 @@
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum TokenType {
     Text,
     Identifier,
@@ -17,6 +17,8 @@ pub enum TokenType {
     Exclamation,      // !
     Assign,           // =
     SingleQuote,      // '
+    DoubleQuote,      // "
+    Semicolon,        // ;
 
     // Math Operators
     Asterisk,     // *
@@ -41,6 +43,7 @@ pub enum TokenType {
     Include,
     True,
     False,
+    As,
 
     // Others
     Dot,
@@ -76,6 +79,7 @@ impl TokenType {
             TokenType::True => "true".to_string(),
             TokenType::False => "false".to_string(),
             TokenType::Assign => "=".to_string(),
+            TokenType::As => "as".to_string(),
             TokenType::Asterisk => "*".to_string(),
             TokenType::ForwardSlash => "/".to_string(),
             TokenType::Minus => "-".to_string(),
@@ -87,6 +91,8 @@ impl TokenType {
             TokenType::At => "@".to_string(),
             TokenType::Integer => "INTEGER".to_string(),
             TokenType::SingleQuote => "'".to_string(),
+            TokenType::DoubleQuote => "\"".to_string(),
+            TokenType::Semicolon => ";".to_string(),
         }
     }
 }
