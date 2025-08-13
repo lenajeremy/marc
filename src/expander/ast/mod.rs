@@ -60,7 +60,7 @@ impl Document {
         Self { nodes: vec![] }
     }
 
-    pub fn add_block(&mut self, block: Box<dyn Node>) {
+    pub fn add_node(&mut self, block: Box<dyn Node>) {
         self.nodes.push(block);
     }
 }

@@ -1,5 +1,6 @@
 use super::Node;
 
+#[derive(Clone)]
 pub struct TextNode {
     text: String,
 }

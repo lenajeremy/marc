@@ -54,14 +54,14 @@ impl Node for IfBlock {
 }
 
 pub struct ForBlock {
-    main_list: VariableAccessExpression,
+    main_list: Expression,
     variable: VariableAccessExpression,
     operations: Vec<Box<dyn Node>>,
     literal: String,
 }
 
 impl ForBlock {
-    pub fn new(list: VariableAccessExpression, variable: VariableAccessExpression) -> ForBlock {
+    pub fn new(list: Expression, variable: VariableAccessExpression) -> ForBlock {
         ForBlock {
             main_list: list,
             variable: variable,

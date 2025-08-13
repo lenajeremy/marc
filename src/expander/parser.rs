@@ -1,5 +1,10 @@
 use crate::expander::{
-    ast::{Document, MarcNode, text_node::TextNode},
+    ast::{
+        Document, MarcNode,
+        expression::{Expression, VariableAccessExpression},
+        marcblocks::ForBlock,
+        text_node::TextNode,
+    },
     lexer::Lexer,
     token::{Token, TokenType as TT},
 };
@@ -11,7 +16,7 @@ pub struct Parser {
 }
 
 impl Parser {
-    pub fn from(lexer: Lexer) -> Self {
+    pub fn new(lexer: Lexer) -> Self {
         let mut parser = Parser {
             curr_token: Token::new(TT::EOF, String::new(), 0, 0),
             next_token: Token::new(TT::EOF, String::new(), 0, 0),
@@ -28,16 +33,40 @@ impl Parser {
     }
 
     pub fn parse(&mut self) -> Box<MarcNode> {
-        Box::new(MarcNode::Text(TextNode::new("Hello World!".to_string())))
+        let marcnode = match self.curr_token.token_type {
+            TT::Text => MarcNode::Text(TextNode::new(self.curr_token.literal.clone())),
+            TT::KeywordStart => {
+                let next_token = self.next_token.clone();
+                match next_token.token_type {
+                    TT::For => {
+                        let for_block = self.parse_for_block();
+                        MarcNode::For(for_block)
+                    }
+                    _ => {
+                        let for_block = self.parse_for_block();
+                        MarcNode::For(for_block)
+                    }
+                }
+            }
+            _ => MarcNode::Expression(Expression::Empty),
+        };
+        self.advance_token();
+        Box::new(marcnode)
+    }
+
+    fn parse_for_block(&mut self) -> ForBlock {
+        ForBlock::new(
+            Expression::VariableAccess(VariableAccessExpression::new("products".to_string())),
+            VariableAccessExpression::new("product".to_string()),
+        )
     }
 
     pub fn parse_document(&mut self) -> Document {
-        println!("parsing program");
         let mut program = Document::new();
 
         while self.curr_token.token_type != TT::EOF {
             let node = self.parse();
-            program.add_block(node);
+            program.add_node(node);
             self.advance_token();
         }
 
