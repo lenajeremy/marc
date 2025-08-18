@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::expander::{
     ast::{
         Document, MarcNode,
@@ -6,6 +8,7 @@ use crate::expander::{
         text_node::TextNode,
     },
     lexer::Lexer,
+    parselets::{NameParselet, Parselets, PrefixParselet},
     token::{Token, TokenType as TT},
 };
 
@@ -13,21 +16,32 @@ pub struct Parser {
     curr_token: Token,
     next_token: Token,
     lexer: Lexer,
+    parselets: HashMap<TT, Parselets>,
 }
 
 impl Parser {
+    pub fn register(&mut self, tt: TT, parselet: Parselets) {
+        self.parselets.insert(tt, parselet);
+    }
+
     pub fn new(lexer: Lexer) -> Self {
         let mut parser = Parser {
             curr_token: Token::new(TT::EOF, String::new(), 0, 0),
             next_token: Token::new(TT::EOF, String::new(), 0, 0),
             lexer,
+            parselets: HashMap::new(),
         };
         parser.advance_token();
         parser.advance_token();
+
+        parser.register(TT::Minus, Parselets::Prefix(PrefixParselet::new()));
+        parser.register(TT::Plus, Parselets::Prefix(PrefixParselet::new()));
+        parser.register(TT::Exclamation, Parselets::Prefix(PrefixParselet::new()));
+        parser.register(TT::Identifier, Parselets::Name(NameParselet::new()));
         parser
     }
 
-    fn advance_token(&mut self) {
+    pub fn advance_token(&mut self) {
         self.curr_token = self.next_token.clone();
         self.next_token = self.lexer.next_token();
     }
@@ -52,6 +66,13 @@ impl Parser {
         };
         self.advance_token();
         Box::new(marcnode)
+    }
+
+    pub fn parse_expression(&mut self) -> Box<Expression> {
+        let Some(parselet) = self.parselets.get(&self.curr_token.token_type) else {
+            panic!("failed to parse expression. got {:?}", self.curr_token);
+        };
+        Box::new(parselet.parse, self.curr_token.clone()))
     }
 
     fn parse_for_block(&mut self) -> ForBlock {

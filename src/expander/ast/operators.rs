@@ -1,3 +1,5 @@
+use crate::expander::token::{Token, TokenType as TT};
+
 /// Comparator describes tokens that can be used to compare the values of two expressions.
 /// eg, >, <, == (all used for numbers and string)
 #[derive(Debug)]
@@ -28,6 +30,23 @@ pub enum Op {
 }
 
 impl Op {
+    pub fn from_token(token: &Token) -> Option<Self> {
+        let operator = match token.token_type {
+            TT::Exclamation => Op::Not,
+            TT::Asterisk => Op::Math(Math::Product),
+            TT::ForwardSlash => Op::Math(Math::Divide),
+            TT::Minus => Op::Math(Math::Minus),
+            TT::Plus => Op::Math(Math::Plus),
+            TT::GreaterThan => Op::Comp(Comparators::GreaterThan),
+            TT::LessThan => Op::Comp(Comparators::LessThan),
+            TT::GreQual => Op::Comp(Comparators::GreaterQuals),
+            TT::LeQual => Op::Comp(Comparators::LessQuals),
+            TT::Equals => Op::Comp(Comparators::Quals),
+            _ => return None,
+        };
+        Some(operator)
+    }
+
     pub fn string(&self) -> String {
         match self {
             Op::Math(math) => match math {

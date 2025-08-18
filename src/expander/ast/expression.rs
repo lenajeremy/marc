@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use super::{Node, operators::Op};
 
 pub struct InfixExpression {
@@ -27,6 +25,13 @@ pub struct PrefixExpression {
 impl PrefixExpression {
     fn literal(&self) -> String {
         format!("{}{}", self.operator.string(), self.right.token_literal())
+    }
+
+    pub fn new(op: Op, right: Box<Expression>) -> Self {
+        Self {
+            operator: op,
+            right,
+        }
     }
 }
 
@@ -134,6 +139,7 @@ impl StringExpression {
 
 pub enum Expression {
     Binary(InfixExpression),
+    Prefix(PrefixExpression),
     VariableAccess(VariableAccessExpression),
     ObjectAccess(ObjectAccessExpression),
     ArrayAccess(ArrayAccessExpression),
@@ -148,6 +154,7 @@ pub enum Expression {
 impl Node for Expression {
     fn token_literal(&self) -> String {
         match self {
+            Self::Prefix(i) => i.literal(),
             Self::Binary(e) => e.literal(),
             Self::VariableAccess(e) => e.literal(),
             Self::ArrayAccess(e) => e.literal(),

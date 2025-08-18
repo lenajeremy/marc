@@ -45,7 +45,6 @@ I have {{ numberOfApples }} apples in my bag.
     expected_program.add_node(Box::new(TextNode::new(String::from("I have "))));
     expected_program.add_node(num_apples_variable);
     expected_program.add_node(Box::new(TextNode::new(String::from(" apples in my bag."))));
-
     let program = p.parse_document();
     assert_eq!(program.token_literal(), expected_program.token_literal())
 }
