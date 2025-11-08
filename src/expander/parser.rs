@@ -8,20 +8,23 @@ use crate::expander::{
         text_node::TextNode,
     },
     lexer::Lexer,
-    parselets::{NameParselet, Parselets, PrefixParselet},
     token::{Token, TokenType as TT},
+};
+
+use crate::expander::parselets::prefix_parselets::{
+    PrefixParseletFn, parse_operator_prefix, parse_variable_expression,
 };
 
 pub struct Parser {
     curr_token: Token,
     next_token: Token,
     lexer: Lexer,
-    parselets: HashMap<TT, Parselets>,
+    prefix_parselets: HashMap<TT, PrefixParseletFn>,
 }
 
 impl Parser {
-    pub fn register(&mut self, tt: TT, parselet: Parselets) {
-        self.parselets.insert(tt, parselet);
+    fn register_prefix_parselet(&mut self, tt: TT, parselet: PrefixParseletFn) {
+        self.prefix_parselets.insert(tt, parselet);
     }
 
     pub fn new(lexer: Lexer) -> Self {
@@ -29,16 +32,18 @@ impl Parser {
             curr_token: Token::new(TT::EOF, String::new(), 0, 0),
             next_token: Token::new(TT::EOF, String::new(), 0, 0),
             lexer,
-            parselets: HashMap::new(),
+            prefix_parselets: HashMap::new(),
         };
+
         parser.advance_token();
         parser.advance_token();
 
-        parser.register(TT::Minus, Parselets::Prefix(PrefixParselet::new()));
-        parser.register(TT::Plus, Parselets::Prefix(PrefixParselet::new()));
-        parser.register(TT::Exclamation, Parselets::Prefix(PrefixParselet::new()));
-        parser.register(TT::Identifier, Parselets::Name(NameParselet::new()));
-        parser
+        parser.register_prefix_parselet(TT::Identifier, parse_variable_expression);
+        parser.register_prefix_parselet(TT::Plus, parse_operator_prefix);
+        parser.register_prefix_parselet(TT::Minus, parse_operator_prefix);
+        parser.register_prefix_parselet(TT::Exclamation, parse_operator_prefix);
+
+        return parser;
     }
 
     pub fn advance_token(&mut self) {
@@ -69,10 +74,10 @@ impl Parser {
     }
 
     pub fn parse_expression(&mut self) -> Box<Expression> {
-        let Some(parselet) = self.parselets.get(&self.curr_token.token_type) else {
+        let Some(parselet) = self.prefix_parselets.get(&self.curr_token.token_type) else {
             panic!("failed to parse expression. got {:?}", self.curr_token);
         };
-        Box::new(parselet.parse, self.curr_token.clone()))
+        parselet(self, self.curr_token.clone())
     }
 
     fn parse_for_block(&mut self) -> ForBlock {

@@ -74,15 +74,19 @@ impl ObjectAccessExpression {
 
 pub struct ArrayAccessExpression {
     parent: Box<Expression>,
-    index: usize,
+    index: Box<Expression>,
 }
 
 impl ArrayAccessExpression {
     fn literal(&self) -> String {
-        format!("{}[{}]", self.parent.token_literal(), self.index)
+        format!(
+            "{}[{}]",
+            self.parent.token_literal(),
+            self.index.token_literal()
+        )
     }
 
-    pub fn new(parent: Box<Expression>, index: usize) -> Self {
+    pub fn new(parent: Box<Expression>, index: Box<Expression>) -> Self {
         Self { index, parent }
     }
 }

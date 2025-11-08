@@ -60,12 +60,8 @@ impl Lexer {
         let start_line = self.line;
         let start_col = self.col;
 
-        while let Some(ch) = self.ch {
-            if utils::is_alphanumeric(self.ch) {
-                self.read_char();
-            } else {
-                break;
-            }
+        while utils::is_alphanumeric(self.ch) {
+            self.read_char();
         }
 
         let text = self.src[start_position..self.position].to_string();
