@@ -74,9 +74,13 @@ impl Parser {
     }
 
     pub fn parse_expression(&mut self) -> Box<Expression> {
-        let Some(parselet) = self.prefix_parselets.get(&self.curr_token.token_type) else {
-            panic!("failed to parse expression. got {:?}", self.curr_token);
-        };
+        let parselet = self
+            .prefix_parselets
+            .get(&self.curr_token.token_type)
+            .clone()
+            .unwrap_or_else(|| {
+                panic!("failed to parse expression. got {:?}", self.curr_token);
+            });
         parselet(self, self.curr_token.clone())
     }
 

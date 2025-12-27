@@ -5,7 +5,6 @@ use crate::expander::ast::MarcNode;
 use super::{
     Node,
     expression::{Expression, VariableAccessExpression},
-    text_node::TextNode,
 };
 
 pub struct IfBlock {
