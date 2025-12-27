@@ -244,7 +244,7 @@ fn test_mixed() {
 
 {% for product in products %}
 - {{ product.name }} {{ product.price }}
-{% if product.total_available == 0 %}
+{% if product.total_available == 0 * 5 %}
 Not Available
 {% endif %}
 {% endfor %}";

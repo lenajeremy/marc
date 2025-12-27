@@ -24,7 +24,7 @@ fn parse_function_args(parser: &mut Parser) -> Vec<Box<Expression>> {
     let mut args = Vec::new();
 
     loop {
-        match parser.curr_token().token_type {
+        match parser.get_curr_token().token_type {
             TokenType::RightParen | TokenType::EOF => break,
             TokenType::Comma => continue,
             _ => {

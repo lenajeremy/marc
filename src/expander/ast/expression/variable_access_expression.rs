@@ -4,7 +4,10 @@ pub struct VariableAccessExpression {
 
 impl VariableAccessExpression {
     pub fn literal(&self) -> String {
-        format!("VariableExpression(name = {})", self.variable_name.clone())
+        format!(
+            "VariableExpression(name = \"{}\")",
+            self.variable_name.clone()
+        )
     }
 
     pub fn new(variable_name: String) -> Self {

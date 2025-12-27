@@ -13,7 +13,7 @@ impl TextNode {
 
 impl Node for TextNode {
     fn token_literal(&self) -> String {
-        self.text.clone()
+        format!("Text(\"{}\")", self.text.clone())
     }
 
     fn translate(&self) -> String {

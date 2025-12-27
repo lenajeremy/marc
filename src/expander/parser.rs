@@ -10,6 +10,7 @@ use crate::expander::{
     lexer::Lexer,
     parselets::{
         array_parcelets::parse_array_expression,
+        integer_parselet::parse_integer_expression,
         object_parselets::parse_object_expression,
         operator_infix_parselets::{InfixParseletFn, parse_operator_infix},
         variable_access_parselet::parse_variable_expression,
@@ -40,7 +41,7 @@ impl Parser {
         self.next_token.clone()
     }
 
-    pub fn curr_token(&self) -> Token {
+    pub fn get_curr_token(&self) -> Token {
         self.curr_token.clone()
     }
 
@@ -61,11 +62,13 @@ impl Parser {
         parser.register_prefix_parselet(TT::Plus, parse_operator_prefix);
         parser.register_prefix_parselet(TT::Minus, parse_operator_prefix);
         parser.register_prefix_parselet(TT::Exclamation, parse_operator_prefix);
+        parser.register_prefix_parselet(TT::Integer, parse_integer_expression);
 
         // register infix parselets
         parser.register_infix_parselet(TT::Plus, parse_operator_infix);
         parser.register_infix_parselet(TT::Minus, parse_operator_infix);
         parser.register_infix_parselet(TT::ForwardSlash, parse_operator_infix);
+        parser.register_infix_parselet(TT::Asterisk, parse_operator_infix);
 
         parser.register_infix_parselet(TT::Dot, parse_object_expression);
         parser.register_infix_parselet(TT::LeftBracket, parse_array_expression);
@@ -78,9 +81,11 @@ impl Parser {
         self.next_token = self.lexer.next_token();
     }
 
-    pub fn parse(&mut self) -> Box<MarcNode> {
+    fn parse(&mut self) -> Box<MarcNode> {
         let marcnode = match self.curr_token.token_type {
-            TT::Text => MarcNode::Text(TextNode::new(self.curr_token.literal.clone())),
+            TT::Text | TT::NewLine => {
+                MarcNode::Text(TextNode::new(self.curr_token.literal.clone()))
+            }
             TT::KeywordStart => {
                 let next_token = self.next_token.clone();
                 match next_token.token_type {
@@ -120,7 +125,19 @@ impl Parser {
 
         let left = prefix_parselet(self, self.curr_token.clone());
 
-        left
+        self.advance_token();
+
+        println!("{:?}", self.curr_token);
+
+        let infix_parselet = self
+            .infix_parselets
+            .get(&self.curr_token.token_type)
+            .clone();
+
+        match infix_parselet {
+            Some(parselet) => parselet(self, left),
+            _ => left,
+        }
     }
 
     fn parse_for_block(&mut self) -> ForBlock {
@@ -141,7 +158,9 @@ impl Parser {
             //     node.token_literal(),
             //     self.curr_token()
             // );
-            program.add_node(node);
+            if node.token_literal() != Expression::Empty.token_literal() {
+                program.add_node(node);
+            }
             // self.advance_token();
         }
 
