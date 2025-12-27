@@ -8,7 +8,7 @@ pub struct ObjectAccessExpression {
 impl ObjectAccessExpression {
     pub fn literal(&self) -> String {
         format!(
-            "{}.{}",
+            "ObjectExpression(value: {}.{})",
             self.parent.token_literal(),
             self.child.token_literal()
         )

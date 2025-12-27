@@ -8,7 +8,7 @@ pub struct FunctionCallExpression {
 impl FunctionCallExpression {
     pub fn literal(&self) -> String {
         format!(
-            "{}({})",
+            "FunctionCall({}({}))",
             self.function_name,
             self.args
                 .iter()

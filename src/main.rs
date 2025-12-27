@@ -1,9 +1,4 @@
-use md_to_html::marc::{
-    ast::{Node, Program},
-    lexer::Lexer,
-    parser::Parser,
-    token::TokenType,
-};
+use md_to_html::marc::{ast::Node, lexer::Lexer, parser::Parser, token::TokenType};
 
 use std::env;
 

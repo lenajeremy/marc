@@ -7,7 +7,11 @@ pub struct PrefixExpression {
 
 impl PrefixExpression {
     pub fn literal(&self) -> String {
-        format!("{}{}", self.operator.string(), self.right.token_literal())
+        format!(
+            "PrefixExpression(value={}{})",
+            self.operator.string(),
+            self.right.token_literal()
+        )
     }
 
     pub fn new(op: Op, right: Box<Expression>) -> Self {

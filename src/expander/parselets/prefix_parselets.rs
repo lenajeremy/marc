@@ -1,10 +1,10 @@
 use crate::expander::{
     ast::{
-        expression::{Expression, PrefixExpression, VariableAccessExpression},
+        expression::{Expression, PrefixExpression},
         operators::Op,
     },
     parser::Parser,
-    token::{Token, TokenType},
+    token::Token,
 };
 
 pub type PrefixParseletFn = fn(parser: &mut Parser, token: Token) -> Box<Expression>;
@@ -22,14 +22,4 @@ pub fn parse_operator_prefix(parser: &mut Parser, token: Token) -> Box<Expressio
         operator,
         next_expression,
     )))
-}
-
-pub fn parse_variable_expression(_: &mut Parser, token: Token) -> Box<Expression> {
-    if token.token_type == TokenType::Identifier {
-        Box::new(Expression::VariableAccess(VariableAccessExpression::new(
-            token.literal,
-        )))
-    } else {
-        panic!("expected an identifier token, got {}", token.literal);
-    }
 }

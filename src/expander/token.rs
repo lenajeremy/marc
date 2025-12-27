@@ -19,6 +19,7 @@ pub enum TokenType {
     SingleQuote,      // '
     DoubleQuote,      // "
     Semicolon,        // ;
+    Comma,            // ,
 
     // Math Operators
     Asterisk,     // *
@@ -93,6 +94,7 @@ impl TokenType {
             TokenType::SingleQuote => "'".to_string(),
             TokenType::DoubleQuote => "\"".to_string(),
             TokenType::Semicolon => ";".to_string(),
+            TokenType::Comma => ",".to_string(),
         }
     }
 }

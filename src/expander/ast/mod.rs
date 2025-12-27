@@ -15,7 +15,7 @@ pub enum MarcNode {
     If(marcblocks::IfBlock),
     For(marcblocks::ForBlock),
     Text(text_node::TextNode),
-    Expression(expression::Expression),
+    Expression(Box<expression::Expression>),
 }
 
 impl Node for MarcNode {

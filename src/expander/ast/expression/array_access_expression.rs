@@ -8,7 +8,7 @@ pub struct ArrayAccessExpression {
 impl ArrayAccessExpression {
     pub fn literal(&self) -> String {
         format!(
-            "{}[{}]",
+            "ArrayAccess({}[{}])",
             self.parent.token_literal(),
             self.index.token_literal()
         )

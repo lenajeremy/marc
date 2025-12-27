@@ -15,6 +15,10 @@ pub struct Lexer {
 }
 
 impl Lexer {
+    pub fn get_cursor(&self) -> (usize, usize) {
+        (self.line, self.col)
+    }
+
     pub fn from(input: &str) -> Self {
         let input = Self::clean_input(input);
         let len = input.len();
@@ -135,6 +139,7 @@ impl Lexer {
             Some('(') => Token::new(TT::LeftParen, "(".to_string(), self.line, self.col),
             Some(')') => Token::new(TT::RightParen, ")".to_string(), self.line, self.col),
             Some('!') => Token::new(TT::Exclamation, "!".to_string(), self.line, self.col),
+            Some(',') => Token::new(TT::Comma, ",".to_string(), self.line, self.col),
             Some(';') => {
                 if self.peek_char(1) == '\n' {
                     self.is_detailed = false;

@@ -10,8 +10,8 @@ use md_to_html::expander::{
 
 #[test]
 fn test_variable_input() {
-    let input = "\
-Hello {{ name }}
+    let input = "Hello {{ name }}
+Hello {{ john }}
 Hello {{ jeremiah }}
 I have {{ numberOfApples }} apples in my bag.
 ";
