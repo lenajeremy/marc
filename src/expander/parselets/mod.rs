@@ -1,4 +1,5 @@
-pub mod array_parcelets;
+pub mod array_parselets;
+pub mod bracket_expression_parselets;
 pub mod function_call_parselet;
 pub mod integer_parselet;
 pub mod object_parselets;

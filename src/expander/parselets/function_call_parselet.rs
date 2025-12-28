@@ -6,12 +6,12 @@ use crate::expander::{
 
 pub fn parse_function_call_expression(
     parser: &mut Parser,
-    function_name: String,
+    identifier: Box<Expression>,
 ) -> Box<Expression> {
     parser.advance_token(); // move the cursor past the `(` char to the next token.
 
     let args = parse_function_args(parser);
-    let mut function_call_expression = FunctionCallExpression::new(function_name);
+    let mut function_call_expression = FunctionCallExpression::new(identifier);
 
     for arg in args {
         function_call_expression.add_arg(arg);
@@ -26,7 +26,10 @@ fn parse_function_args(parser: &mut Parser) -> Vec<Box<Expression>> {
     loop {
         match parser.get_curr_token().token_type {
             TokenType::RightParen | TokenType::EOF => break,
-            TokenType::Comma => continue,
+            TokenType::Comma => {
+                parser.advance_token();
+                continue;
+            }
             _ => {
                 let expression = parser.parse_expression();
                 args.push(expression);

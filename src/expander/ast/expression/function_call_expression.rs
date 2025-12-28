@@ -1,7 +1,7 @@
 use crate::expander::ast::{Node, expression::Expression};
 
 pub struct FunctionCallExpression {
-    function_name: String,
+    function_identifier: Box<Expression>,
     args: Vec<Box<Expression>>,
 }
 
@@ -9,18 +9,18 @@ impl FunctionCallExpression {
     pub fn literal(&self) -> String {
         format!(
             "FunctionCall({}({}))",
-            self.function_name,
+            self.function_identifier.token_literal(),
             self.args
                 .iter()
                 .map(|x| { x.token_literal() })
                 .collect::<Vec<String>>()
-                .join(",")
+                .join(", ")
         )
     }
 
-    pub fn new(function_name: String) -> Self {
+    pub fn new(identifier: Box<Expression>) -> Self {
         Self {
-            function_name,
+            function_identifier: identifier,
             args: vec![],
         }
     }

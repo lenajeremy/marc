@@ -9,7 +9,9 @@ use crate::expander::{
     },
     lexer::Lexer,
     parselets::{
-        array_parcelets::parse_array_expression,
+        array_parselets::parse_array_expression,
+        bracket_expression_parselets::parse_grouped_expression,
+        function_call_parselet::parse_function_call_expression,
         integer_parselet::parse_integer_expression,
         object_parselets::parse_object_expression,
         operator_infix_parselets::{InfixParseletFn, parse_operator_infix},
@@ -63,6 +65,7 @@ impl Parser {
         parser.register_prefix_parselet(TT::Minus, parse_operator_prefix);
         parser.register_prefix_parselet(TT::Exclamation, parse_operator_prefix);
         parser.register_prefix_parselet(TT::Integer, parse_integer_expression);
+        parser.register_prefix_parselet(TT::LeftParen, parse_grouped_expression);
 
         // register infix parselets
         parser.register_infix_parselet(TT::Plus, parse_operator_infix);
@@ -72,6 +75,7 @@ impl Parser {
 
         parser.register_infix_parselet(TT::Dot, parse_object_expression);
         parser.register_infix_parselet(TT::LeftBracket, parse_array_expression);
+        parser.register_infix_parselet(TT::LeftParen, parse_function_call_expression);
 
         return parser;
     }

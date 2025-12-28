@@ -2,8 +2,8 @@ use md_to_html::expander::{
     ast::{
         Document, Node,
         expression::{
-            ArrayAccessExpression, Expression, InfixExpression, IntegerExpression,
-            ObjectAccessExpression, PrefixExpression, VariableAccessExpression,
+            ArrayAccessExpression, Expression, FunctionCallExpression, InfixExpression,
+            IntegerExpression, ObjectAccessExpression, PrefixExpression, VariableAccessExpression,
         },
         operators::{Math, Op},
         text_node::TextNode,
@@ -210,7 +210,7 @@ fn test_complex_expressions() {
 #[test]
 fn test_operator_precedence() {
     // a + b * c  -> a + (b * c)
-    let input = "{{ a + b * c }}";
+    let input = "{{ a - b - c }}";
     let lexer = Lexer::from(input);
     let mut p = Parser::new(lexer);
     let program = p.parse_document();
@@ -227,18 +227,18 @@ fn test_operator_precedence() {
         "c".to_string(),
     )));
 
-    // b * c
+    // a - b
     let b_times_c = Box::new(Expression::OperatorInfix(InfixExpression::new(
+        a_var,
         b_var,
-        c_var,
-        Op::Math(Math::Product),
+        Op::Math(Math::Minus),
     )));
 
     // a + (b * c)
     let a_plus_bc = Box::new(Expression::OperatorInfix(InfixExpression::new(
-        a_var,
         b_times_c,
-        Op::Math(Math::Plus),
+        c_var,
+        Op::Math(Math::Minus),
     )));
 
     expected_program.add_node(a_plus_bc);
@@ -251,4 +251,173 @@ fn test_operator_precedence() {
         expected_program.token_literal(),
         "failed for precedence test"
     );
+}
+
+#[test]
+fn test_function_calls() {
+    let input = "{{ foo(bar, baz, 10) }}";
+    let lexer = Lexer::from(input);
+    let mut parser = Parser::new(lexer);
+
+    let program = parser.parse_document();
+
+    let mut expected_program = Document::new();
+
+    let foo_identifier = Box::new(Expression::VariableAccess(VariableAccessExpression::new(
+        String::from("foo"),
+    )));
+
+    let bar_function_arg = Box::new(Expression::VariableAccess(VariableAccessExpression::new(
+        String::from("bar"),
+    )));
+
+    let baz_function_arg = Box::new(Expression::VariableAccess(VariableAccessExpression::new(
+        String::from("baz"),
+    )));
+
+    let ten_function_arg = Box::new(Expression::Integer(IntegerExpression::new(10)));
+
+    let mut function_expression = FunctionCallExpression::new(foo_identifier);
+
+    function_expression.add_arg(bar_function_arg);
+    function_expression.add_arg(baz_function_arg);
+    function_expression.add_arg(ten_function_arg);
+
+    expected_program.add_node(Box::new(Expression::FunctionCall(function_expression)));
+
+    println!("{}", program.token_literal());
+    assert_eq!(program.token_literal(), expected_program.token_literal());
+}
+
+#[test]
+fn test_grouped_expressions() {
+    // Case 1: Simple grouping (5 + 5)
+    {
+        let input = "{{ (5 + 5) }}";
+        let lexer = Lexer::from(input);
+        let mut p = Parser::new(lexer);
+        let program = p.parse_document();
+
+        let mut expected_program = Document::new();
+        // (5 + 5)
+        let infix = Box::new(Expression::OperatorInfix(InfixExpression::new(
+            Box::new(Expression::Integer(IntegerExpression::new(5))),
+            Box::new(Expression::Integer(IntegerExpression::new(5))),
+            Op::Math(Math::Plus),
+        )));
+        expected_program.add_node(infix);
+
+        println!("Case 1 Got: {}", program.token_literal());
+        println!("Case 1 Exp: {}", expected_program.token_literal());
+        assert_eq!(
+            program.token_literal(),
+            expected_program.token_literal(),
+            "failed for simple grouped expression: {}",
+            input
+        );
+    }
+
+    // Case 2: Precedence override (5 + 5) * 5
+    {
+        let input = "{{ (5 + 5) * 5 }}";
+        let lexer = Lexer::from(input);
+        let mut p = Parser::new(lexer);
+        let program = p.parse_document();
+
+        let mut expected_program = Document::new();
+        // (5 + 5)
+        let five_plus_five = Box::new(Expression::OperatorInfix(InfixExpression::new(
+            Box::new(Expression::Integer(IntegerExpression::new(5))),
+            Box::new(Expression::Integer(IntegerExpression::new(5))),
+            Op::Math(Math::Plus),
+        )));
+
+        // Result * 5
+        let infix = Box::new(Expression::OperatorInfix(InfixExpression::new(
+            five_plus_five,
+            Box::new(Expression::Integer(IntegerExpression::new(5))),
+            Op::Math(Math::Product),
+        )));
+
+        expected_program.add_node(infix);
+
+        println!("Case 2 Got: {}", program.token_literal());
+        println!("Case 2 Exp: {}", expected_program.token_literal());
+        assert_eq!(
+            program.token_literal(),
+            expected_program.token_literal(),
+            "failed for grouped precedence expression: {}",
+            input
+        );
+    }
+
+    // Case 3: Right side grouping 5 * (5 + 5)
+    {
+        let input = "{{ 5 * (5 + 5) }}";
+        let lexer = Lexer::from(input);
+        let mut p = Parser::new(lexer);
+        let program = p.parse_document();
+
+        let mut expected_program = Document::new();
+
+        // (5 + 5)
+        let five_plus_five = Box::new(Expression::OperatorInfix(InfixExpression::new(
+            Box::new(Expression::Integer(IntegerExpression::new(5))),
+            Box::new(Expression::Integer(IntegerExpression::new(5))),
+            Op::Math(Math::Plus),
+        )));
+
+        // 5 * Result
+        let infix = Box::new(Expression::OperatorInfix(InfixExpression::new(
+            Box::new(Expression::Integer(IntegerExpression::new(5))),
+            five_plus_five,
+            Op::Math(Math::Product),
+        )));
+
+        expected_program.add_node(infix);
+
+        println!("Case 3 Got: {}", program.token_literal());
+        println!("Case 3 Exp: {}", expected_program.token_literal());
+        assert_eq!(
+            program.token_literal(),
+            expected_program.token_literal(),
+            "failed for right-side grouped expression: {}",
+            input
+        );
+    }
+
+    // Case 4: Nested grouping ((5 + 5) * 5)
+    {
+        let input = "{{ ((5 + 5) * 5) }}";
+        let lexer = Lexer::from(input);
+        let mut p = Parser::new(lexer);
+        let program = p.parse_document();
+
+        let mut expected_program = Document::new();
+
+        // (5 + 5)
+        let inner_sum = Box::new(Expression::OperatorInfix(InfixExpression::new(
+            Box::new(Expression::Integer(IntegerExpression::new(5))),
+            Box::new(Expression::Integer(IntegerExpression::new(5))),
+            Op::Math(Math::Plus),
+        )));
+
+        // Inner * 5
+        let outer_product = Box::new(Expression::OperatorInfix(InfixExpression::new(
+            inner_sum,
+            Box::new(Expression::Integer(IntegerExpression::new(5))),
+            Op::Math(Math::Product),
+        )));
+
+        expected_program.add_node(outer_product);
+
+        println!("Case 4 Got: {}", program.token_literal());
+        println!("Case 4 Exp: {}", expected_program.token_literal());
+        assert_eq!(
+            program.token_literal(),
+            expected_program.token_literal(),
+            "failed for nested grouped expression: {}",
+            input
+        );
+    }
 }
