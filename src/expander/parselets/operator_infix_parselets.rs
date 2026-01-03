@@ -3,24 +3,42 @@ use crate::expander::{
         expression::{Expression, InfixExpression},
         operators::Op,
     },
+    parselets::InfixParselet,
     parser::Parser,
+    precedence::Precendence,
+    token::{Token, TokenType},
 };
 
-pub type InfixParseletFn = fn(parser: &mut Parser, left: Box<Expression>) -> Box<Expression>;
+pub struct OperatorInfixParselet;
 
-pub fn parse_operator_infix(parser: &mut Parser, left: Box<Expression>) -> Box<Expression> {
-    let token = parser.get_curr_token();
+impl InfixParselet for OperatorInfixParselet {
+    fn get_precedence(&self, token: Token) -> u8 {
+        let precendence = match token.token_type {
+            TokenType::Plus | TokenType::Minus => Precendence::SUM,
+            TokenType::Asterisk | TokenType::ForwardSlash => Precendence::PRODUCT,
+            _ => panic!(
+                "Expected math operator token ('+', '-', '/', '*'), got {}",
+                token.literal
+            ),
+        };
 
-    let operator = Op::from_token(&token)
-        .expect(format!("expected a valid operator token, got {}", token.literal).as_str());
+        precendence as u8
+    }
 
-    parser.advance_token();
+    fn parse_expression(&self, parser: &mut Parser, left: Box<Expression>) -> Box<Expression> {
+        let token = parser.get_curr_token();
 
-    let next_expression = parser.parse_expression();
+        let operator = Op::from_token(&token)
+            .expect(format!("expected a valid operator token, got {}", token.literal).as_str());
 
-    Box::new(Expression::OperatorInfix(InfixExpression::new(
-        left,
-        next_expression,
-        operator,
-    )))
+        parser.advance_token();
+
+        let next_expression = parser.parse_expression(self.get_precedence(parser.get_curr_token()));
+
+        Box::new(Expression::OperatorInfix(InfixExpression::new(
+            left,
+            next_expression,
+            operator,
+        )))
+    }
 }

@@ -1,17 +1,25 @@
 use crate::expander::{
     ast::expression::{Expression, IntegerExpression},
+    parselets::PrefixParselet,
     parser::Parser,
+    precedence::Precendence,
     token::{Token, TokenType},
 };
 
-pub type IntegerParseletFn = fn(parser: &mut Parser, token: Token) -> Box<Expression>;
+pub struct IntegerParselet;
 
-pub fn parse_integer_expression(_: &mut Parser, token: Token) -> Box<Expression> {
-    if token.token_type == TokenType::Integer {
-        let integer_value = token.literal.parse::<i64>().expect("invalid integer value");
+impl PrefixParselet for IntegerParselet {
+    fn get_precedence(&self) -> u8 {
+        Precendence::VARIABLE as u8
+    }
 
-        Box::new(Expression::Integer(IntegerExpression::new(integer_value)))
-    } else {
-        panic!("expected an integer token, got {}", token.literal);
+    fn parse_expression(&self, _: &mut Parser, token: Token) -> Box<Expression> {
+        if token.token_type == TokenType::Integer {
+            let integer_value = token.literal.parse::<i64>().expect("invalid integer value");
+
+            Box::new(Expression::Integer(IntegerExpression::new(integer_value)))
+        } else {
+            panic!("expected an integer token, got {}", token.literal);
+        }
     }
 }

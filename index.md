@@ -1,5 +1,6 @@
-# Hello Marc 👌
+# Hello to my space 👌
 
-Marc — a minimal Markdown compiler & static site generator.
+My name is Jeremiah Lena, a software engineer based in Dublin. This is my sacred place, where my thoughts and ideas are penned. Tread carefully.
 
-Yo! Everyone! What's popping?
+- [Starting over, building again from scratch](/relocating.html) - 3rd of January, 2026
+

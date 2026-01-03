@@ -9,33 +9,40 @@ use crate::expander::{
     },
     lexer::Lexer,
     parselets::{
-        array_parselets::parse_array_expression,
-        bracket_expression_parselets::parse_grouped_expression,
-        function_call_parselet::parse_function_call_expression,
-        integer_parselet::parse_integer_expression,
-        object_parselets::parse_object_expression,
-        operator_infix_parselets::{InfixParseletFn, parse_operator_infix},
-        variable_access_parselet::parse_variable_expression,
+        InfixParselet, PrefixParselet, array_parselets::ArrayParselet,
+        bracket_expression_parselets::GroupedExpressionParselet,
+        function_call_parselet::FunctionCallParselet, integer_parselet::IntegerParselet,
+        object_parselets::ObjectNotationParselet, operator_infix_parselets::OperatorInfixParselet,
+        operator_prefix_parselets::OperatorPrefixParselet,
+        variable_access_parselet::VariableAccessParselet,
     },
+    precedence::Precendence,
     token::{Token, TokenType as TT},
 };
-
-use crate::expander::parselets::prefix_parselets::{PrefixParseletFn, parse_operator_prefix};
 
 pub struct Parser {
     curr_token: Token,
     next_token: Token,
     lexer: Lexer,
-    prefix_parselets: HashMap<TT, PrefixParseletFn>,
-    infix_parselets: HashMap<TT, InfixParseletFn>,
+    prefix_parselets: HashMap<TT, &'static dyn PrefixParselet>,
+    infix_parselets: HashMap<TT, &'static dyn InfixParselet>,
 }
 
+static VARIABLE_ACCESS_PARSELET: VariableAccessParselet = VariableAccessParselet;
+static OPERATOR_PREFIX_PARSELET: OperatorPrefixParselet = OperatorPrefixParselet;
+static INTEGER_PARSELET: IntegerParselet = IntegerParselet;
+static GROUPED_OPERATION_PARSELET: GroupedExpressionParselet = GroupedExpressionParselet;
+static OPERATOR_INFIX_PARSELET: OperatorInfixParselet = OperatorInfixParselet;
+static FUNCTION_CALL_PARSELET: FunctionCallParselet = FunctionCallParselet;
+static ARRAY_PARSELET: ArrayParselet = ArrayParselet;
+static OBJECT_NOTATION_PARSELET: ObjectNotationParselet = ObjectNotationParselet;
+
 impl Parser {
-    fn register_prefix_parselet(&mut self, tt: TT, parselet: PrefixParseletFn) {
+    fn register_prefix_parselet(&mut self, tt: TT, parselet: &'static dyn PrefixParselet) {
         self.prefix_parselets.insert(tt, parselet);
     }
 
-    fn register_infix_parselet(&mut self, tt: TT, parselet: InfixParseletFn) {
+    fn register_infix_parselet(&mut self, tt: TT, parselet: &'static dyn InfixParselet) {
         self.infix_parselets.insert(tt, parselet);
     }
 
@@ -60,22 +67,22 @@ impl Parser {
         parser.advance_token();
 
         // register prefix parselets
-        parser.register_prefix_parselet(TT::Identifier, parse_variable_expression);
-        parser.register_prefix_parselet(TT::Plus, parse_operator_prefix);
-        parser.register_prefix_parselet(TT::Minus, parse_operator_prefix);
-        parser.register_prefix_parselet(TT::Exclamation, parse_operator_prefix);
-        parser.register_prefix_parselet(TT::Integer, parse_integer_expression);
-        parser.register_prefix_parselet(TT::LeftParen, parse_grouped_expression);
+        parser.register_prefix_parselet(TT::Identifier, &VARIABLE_ACCESS_PARSELET);
+        parser.register_prefix_parselet(TT::Plus, &OPERATOR_PREFIX_PARSELET);
+        parser.register_prefix_parselet(TT::Minus, &OPERATOR_PREFIX_PARSELET);
+        parser.register_prefix_parselet(TT::Exclamation, &OPERATOR_PREFIX_PARSELET);
+        parser.register_prefix_parselet(TT::Integer, &INTEGER_PARSELET);
+        parser.register_prefix_parselet(TT::LeftParen, &GROUPED_OPERATION_PARSELET);
 
         // register infix parselets
-        parser.register_infix_parselet(TT::Plus, parse_operator_infix);
-        parser.register_infix_parselet(TT::Minus, parse_operator_infix);
-        parser.register_infix_parselet(TT::ForwardSlash, parse_operator_infix);
-        parser.register_infix_parselet(TT::Asterisk, parse_operator_infix);
+        parser.register_infix_parselet(TT::Plus, &OPERATOR_INFIX_PARSELET);
+        parser.register_infix_parselet(TT::Minus, &OPERATOR_INFIX_PARSELET);
+        parser.register_infix_parselet(TT::ForwardSlash, &OPERATOR_INFIX_PARSELET);
+        parser.register_infix_parselet(TT::Asterisk, &OPERATOR_INFIX_PARSELET);
 
-        parser.register_infix_parselet(TT::Dot, parse_object_expression);
-        parser.register_infix_parselet(TT::LeftBracket, parse_array_expression);
-        parser.register_infix_parselet(TT::LeftParen, parse_function_call_expression);
+        parser.register_infix_parselet(TT::Dot, &OBJECT_NOTATION_PARSELET);
+        parser.register_infix_parselet(TT::LeftBracket, &ARRAY_PARSELET);
+        parser.register_infix_parselet(TT::LeftParen, &FUNCTION_CALL_PARSELET);
 
         return parser;
     }
@@ -105,7 +112,7 @@ impl Parser {
             }
             TT::LeftDoubleBrace => {
                 self.advance_token();
-                MarcNode::Expression(self.parse_expression())
+                MarcNode::Expression(self.parse_expression(0))
             }
             _ => MarcNode::Expression(Box::new(Expression::Empty)),
         };
@@ -113,13 +120,46 @@ impl Parser {
         Box::new(marcnode)
     }
 
-    pub fn parse_expression(&mut self) -> Box<Expression> {
-        println!("parsing expression, curr_token: {:?}", self.curr_token);
+    pub fn get_precedence(&self) -> u8 {
+        println!(
+            "\n--------\nfinding precedence of token: {:?}",
+            self.curr_token.token_type
+        );
+
+        let infix_parselet = self.infix_parselets.get(&self.curr_token.token_type);
+        let prefix_parselet = self.prefix_parselets.get(&self.curr_token.token_type);
+
+        if infix_parselet.is_some() {
+            return infix_parselet
+                .unwrap()
+                .get_precedence(self.curr_token.clone());
+        }
+
+        let token = match prefix_parselet {
+            Some(x) => x.get_precedence(),
+            None => 0,
+        };
+
+        println!(
+            "precedence of token {:?} is {}\n--------",
+            self.curr_token.token_type, token
+        );
+
+        token
+    }
+
+    pub fn parse_expression(&mut self, precendence: u8) -> Box<Expression> {
+        println!(
+            "parsing expression, curr_token: {:?}, previous_precedence: {}, curr_precedence: {}",
+            self.curr_token,
+            precendence,
+            self.get_precedence(),
+        );
+
         let cursor_details = self.lexer.get_cursor();
-        let prefix_parselet = self
+        let prefix_parselet = *self
             .prefix_parselets
             .get(&self.curr_token.token_type)
-            .clone()
             .unwrap_or_else(|| {
                 panic!(
                     "failed to parse expression. got {:?}, line: {}, column: {}",
@@ -127,21 +167,35 @@ impl Parser {
                 );
             });
 
-        let left = prefix_parselet(self, self.curr_token.clone());
+        let mut left = prefix_parselet.parse_expression(self, self.curr_token.clone());
 
-        self.advance_token();
+        println!(
+            "done parsing left, returned: {:?}, curr_token: {:?}, new_precedence {}",
+            left.token_literal(),
+            self.curr_token,
+            self.get_precedence()
+        );
 
-        println!("{:?}", self.curr_token);
+        while precendence < self.get_precedence() {
+            self.advance_token();
+            println!("{:?}", self.curr_token);
 
-        let infix_parselet = self
-            .infix_parselets
-            .get(&self.curr_token.token_type)
-            .clone();
+            let infix_parselet = self
+                .infix_parselets
+                .get(&self.curr_token.token_type)
+                .clone();
 
-        match infix_parselet {
-            Some(parselet) => parselet(self, left),
-            _ => left,
+            left = match infix_parselet {
+                Some(parselet) => {
+                    let right = parselet.parse_expression(self, left);
+                    println!("done parsing right, right is {:?}", right.token_literal());
+                    right
+                }
+                _ => left,
+            }
         }
+
+        left
     }
 
     fn parse_for_block(&mut self) -> ForBlock {
