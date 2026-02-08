@@ -2,7 +2,7 @@ use crate::expander::{
     ast::expression::{Expression, IntegerExpression},
     parselets::PrefixParselet,
     parser::Parser,
-    precedence::Precendence,
+    precedence::Precedence,
     token::{Token, TokenType},
 };
 
@@ -10,7 +10,7 @@ pub struct IntegerParselet;
 
 impl PrefixParselet for IntegerParselet {
     fn get_precedence(&self) -> u8 {
-        Precendence::VARIABLE as u8
+        Precedence::VARIABLE as u8
     }
 
     fn parse_expression(&self, _: &mut Parser, token: Token) -> Box<Expression> {

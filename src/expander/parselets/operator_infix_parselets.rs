@@ -5,7 +5,7 @@ use crate::expander::{
     },
     parselets::InfixParselet,
     parser::Parser,
-    precedence::Precendence,
+    precedence::Precedence,
     token::{Token, TokenType},
 };
 
@@ -14,8 +14,8 @@ pub struct OperatorInfixParselet;
 impl InfixParselet for OperatorInfixParselet {
     fn get_precedence(&self, token: Token) -> u8 {
         let precendence = match token.token_type {
-            TokenType::Plus | TokenType::Minus => Precendence::SUM,
-            TokenType::Asterisk | TokenType::ForwardSlash => Precendence::PRODUCT,
+            TokenType::Plus | TokenType::Minus => Precedence::SUM,
+            TokenType::Asterisk | TokenType::ForwardSlash => Precedence::PRODUCT,
             _ => panic!(
                 "Expected math operator token ('+', '-', '/', '*'), got {}",
                 token.literal
@@ -31,9 +31,9 @@ impl InfixParselet for OperatorInfixParselet {
         let operator = Op::from_token(&token)
             .expect(format!("expected a valid operator token, got {}", token.literal).as_str());
 
+        let precedence = self.get_precedence(token.clone());
         parser.advance_token();
-
-        let next_expression = parser.parse_expression(self.get_precedence(parser.get_curr_token()));
+        let next_expression = parser.parse_expression(precedence);
 
         Box::new(Expression::OperatorInfix(InfixExpression::new(
             left,

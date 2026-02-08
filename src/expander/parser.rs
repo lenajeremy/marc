@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-
 use crate::expander::{
     ast::{
         Document, MarcNode, Node,
@@ -16,7 +15,6 @@ use crate::expander::{
         operator_prefix_parselets::OperatorPrefixParselet,
         variable_access_parselet::VariableAccessParselet,
     },
-    precedence::Precendence,
     token::{Token, TokenType as TT},
 };
 
@@ -120,42 +118,18 @@ impl Parser {
         Box::new(marcnode)
     }
 
-    pub fn get_precedence(&self) -> u8 {
-        println!(
-            "\n--------\nfinding precedence of token: {:?}",
-            self.curr_token.token_type
-        );
-
-        let infix_parselet = self.infix_parselets.get(&self.curr_token.token_type);
-        let prefix_parselet = self.prefix_parselets.get(&self.curr_token.token_type);
-
-        if infix_parselet.is_some() {
-            return infix_parselet
-                .unwrap()
-                .get_precedence(self.curr_token.clone());
-        }
-
-        let token = match prefix_parselet {
-            Some(x) => x.get_precedence(),
+    pub fn get_precedence(&self, token: &Token) -> u8 {
+        match self.infix_parselets.get(&token.token_type) {
+            Some(parselet) => parselet.get_precedence(token.clone()),
             None => 0,
-        };
+        }
+    }
 
-        println!(
-            "precedence of token {:?} is {}\n--------",
-            self.curr_token.token_type, token
-        );
-
-        token
+    pub fn peek_precedence(&self) -> u8 {
+        self.get_precedence(&self.next_token)
     }
 
     pub fn parse_expression(&mut self, precendence: u8) -> Box<Expression> {
-        println!(
-            "parsing expression, curr_token: {:?}, previous_precedence: {}, curr_precedence: {}",
-            self.curr_token,
-            precendence,
-            self.get_precedence(),
-        );
-
         let cursor_details = self.lexer.get_cursor();
         let prefix_parselet = *self
             .prefix_parselets
@@ -169,16 +143,8 @@ impl Parser {
 
         let mut left = prefix_parselet.parse_expression(self, self.curr_token.clone());
 
-        println!(
-            "done parsing left, returned: {:?}, curr_token: {:?}, new_precedence {}",
-            left.token_literal(),
-            self.curr_token,
-            self.get_precedence()
-        );
-
-        while precendence < self.get_precedence() {
+        while precendence < self.peek_precedence() {
             self.advance_token();
-            println!("{:?}", self.curr_token);
 
             let infix_parselet = self
                 .infix_parselets
@@ -188,7 +154,6 @@ impl Parser {
             left = match infix_parselet {
                 Some(parselet) => {
                     let right = parselet.parse_expression(self, left);
-                    println!("done parsing right, right is {:?}", right.token_literal());
                     right
                 }
                 _ => left,

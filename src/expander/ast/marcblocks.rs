@@ -17,7 +17,7 @@ pub struct IfBlock {
 impl IfBlock {
     pub fn new(expression: Expression) -> IfBlock {
         IfBlock {
-            expression: expression,
+            expression,
             valid: vec![],
             invalid: vec![],
             literal: String::new(),

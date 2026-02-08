@@ -5,7 +5,7 @@ use crate::expander::{
     },
     parselets::PrefixParselet,
     parser::Parser,
-    precedence::Precendence,
+    precedence::Precedence,
     token::Token,
 };
 
@@ -13,7 +13,7 @@ pub struct OperatorPrefixParselet;
 
 impl PrefixParselet for OperatorPrefixParselet {
     fn get_precedence(&self) -> u8 {
-        Precendence::PREFIX as u8
+        Precedence::PREFIX as u8
     }
 
     fn parse_expression(&self, parser: &mut Parser, token: Token) -> Box<Expression> {
