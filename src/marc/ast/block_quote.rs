@@ -1,4 +1,4 @@
-use super::{inline_container::InlineContainer, Block, Node};
+use super::{Block, Node, inline_container::InlineContainer};
 
 pub struct BlockQuote {
     inner: Box<dyn Node>,

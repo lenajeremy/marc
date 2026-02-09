@@ -13,25 +13,43 @@ fn test_comparator_tokens() {
         Token::new(TT::Identifier, "a".to_string(), start_line, start_col),
         Token::new(TT::NeQual, "!=".to_string(), start_line, start_col),
         Token::new(TT::Identifier, "b".to_string(), start_line, start_col),
-        Token::new(TT::RightDoubleBrace, "}}".to_string(), start_line, start_col),
+        Token::new(
+            TT::RightDoubleBrace,
+            "}}".to_string(),
+            start_line,
+            start_col,
+        ),
         Token::new(TT::NewLine, "\n".to_string(), start_line, start_col),
         Token::new(TT::LeftDoubleBrace, "{{".to_string(), start_line, start_col),
         Token::new(TT::Identifier, "a".to_string(), start_line, start_col),
         Token::new(TT::LeQual, "<=".to_string(), start_line, start_col),
         Token::new(TT::Identifier, "b".to_string(), start_line, start_col),
-        Token::new(TT::RightDoubleBrace, "}}".to_string(), start_line, start_col),
+        Token::new(
+            TT::RightDoubleBrace,
+            "}}".to_string(),
+            start_line,
+            start_col,
+        ),
         Token::new(TT::NewLine, "\n".to_string(), start_line, start_col),
         Token::new(TT::LeftDoubleBrace, "{{".to_string(), start_line, start_col),
         Token::new(TT::Identifier, "a".to_string(), start_line, start_col),
         Token::new(TT::GreQual, ">=".to_string(), start_line, start_col),
         Token::new(TT::Identifier, "b".to_string(), start_line, start_col),
-        Token::new(TT::RightDoubleBrace, "}}".to_string(), start_line, start_col),
+        Token::new(
+            TT::RightDoubleBrace,
+            "}}".to_string(),
+            start_line,
+            start_col,
+        ),
         Token::new(TT::EOF, "".to_string(), start_line, start_col),
     ];
 
     for expected in expected_tokens {
         let token = l.next_token();
-        assert_eq!(token.token_type.as_string(), expected.token_type.as_string());
+        assert_eq!(
+            token.token_type.as_string(),
+            expected.token_type.as_string()
+        );
         assert_eq!(token.literal, expected.literal);
     }
 }

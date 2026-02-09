@@ -42,7 +42,11 @@ impl Node for IfBlock {
         let invalid_literal = if self.invalid.is_empty() {
             "[]".to_string()
         } else {
-            let inner: String = self.invalid.iter().map(|x| x.token_literal() + ",").collect();
+            let inner: String = self
+                .invalid
+                .iter()
+                .map(|x| x.token_literal() + ",")
+                .collect();
             format!("[{}]", &inner[..inner.len() - 1])
         };
         format!(
@@ -53,7 +57,7 @@ impl Node for IfBlock {
         )
     }
 
-    fn evaluate(&self) -> String {
+    fn translate(&self) -> String {
         // this would be updated to take the scope
         self.token_literal()
     }
@@ -103,7 +107,7 @@ impl Node for ForBlock {
         )
     }
 
-    fn evaluate(&self) -> String {
+    fn translate(&self) -> String {
         self.token_literal()
     }
 

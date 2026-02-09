@@ -4,9 +4,9 @@ pub struct StringExpression {
 
 impl StringExpression {
     pub fn literal(&self) -> String {
-        self.value.to_owned()
+        format!("String({})", self.value)
     }
-    
+
     pub fn new(value: String) -> Self {
         Self { value }
     }

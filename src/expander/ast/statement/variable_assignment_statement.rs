@@ -1,5 +1,5 @@
-use crate::expander::ast::expression::Expression;
 use crate::expander::ast::Node;
+use crate::expander::ast::expression::Expression;
 
 pub struct VariableAssignmentStatement {
     identifier: String,
@@ -10,9 +10,13 @@ impl VariableAssignmentStatement {
     pub fn new(identifier: String, value: Box<Expression>) -> Self {
         Self { identifier, value }
     }
-    
+
     pub fn literal(&self) -> String {
-        format!("VariableAssignmentStatement(\"{} = {}\")", self.identifier, self.value.token_literal())
+        format!(
+            "VariableAssignmentStatement(\"{} = {}\")",
+            self.identifier,
+            self.value.token_literal()
+        )
     }
 }
 
@@ -21,7 +25,7 @@ impl Node for VariableAssignmentStatement {
         self.literal()
     }
 
-    fn evaluate(&self) -> String {
+    fn translate(&self) -> String {
         self.token_literal()
     }
 

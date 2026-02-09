@@ -1,7 +1,9 @@
 @import "person.json" as person
 
-{% fn fullName(first, last) %}
-{% return first + " " + last %}
+{% fn add(a, b) %}
+sum = 50 + a * b
+print(sum)
+return sum
 {% endfn %}
 
 {% if person.age >= 18 %}

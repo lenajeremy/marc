@@ -1,3 +1,1 @@
-pub struct BooleanExpression {
-    
-}
+pub struct BooleanExpression {}

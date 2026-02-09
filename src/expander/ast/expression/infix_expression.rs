@@ -1,9 +1,9 @@
 use super::{super::operators::Op, Expression, Node};
 
 pub struct InfixExpression {
-    left: Box<Expression>,
-    right: Box<Expression>,
-    operator: Op,
+    pub left: Box<Expression>,
+    pub right: Box<Expression>,
+    pub operator: Op,
 }
 
 impl InfixExpression {

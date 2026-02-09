@@ -7,9 +7,12 @@ impl ImportStatement {
     pub fn new(src: String, alias: String) -> Self {
         ImportStatement { src, alias }
     }
-    
+
     pub fn literal(&self) -> String {
-        format!("ImportStatement(\"@import {} as {}\")", self.src, self.alias)
+        format!(
+            "ImportStatement(src=\"{}\", alias=\"{}\")",
+            self.src, self.alias
+        )
     }
 }
 
@@ -18,7 +21,7 @@ impl crate::expander::ast::Node for ImportStatement {
         self.literal()
     }
 
-    fn evaluate(&self) -> String {
+    fn translate(&self) -> String {
         self.token_literal()
     }
 

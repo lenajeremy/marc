@@ -3,12 +3,12 @@ use std::any::Any;
 pub mod expression;
 pub mod marcblocks;
 pub mod operators;
-pub mod text_node;
 pub mod statement;
+pub mod text_node;
 
 pub trait Node: Any {
     fn token_literal(&self) -> String;
-    fn evaluate(&self) -> String;
+    fn translate(&self) -> String;
     fn as_any(self: Box<Self>) -> Box<dyn Any>;
 }
 
@@ -35,14 +35,22 @@ impl Node for MarcNode {
         }
     }
 
-    fn evaluate(&self) -> String {
-        self.token_literal()
+    fn translate(&self) -> String {
+        match self {
+            MarcNode::For(b) => b.translate(),
+            MarcNode::If(b) => b.translate(),
+            MarcNode::Text(b) => b.translate(),
+            MarcNode::Expression(b) => b.translate(),
+            MarcNode::FunctionDefinition(b) => b.translate(),
+            MarcNode::Import(b) => b.translate(),
+            MarcNode::Statement(b) => b.translate(),
+        }
     }
 
     fn as_any(self: Box<Self>) -> Box<dyn std::any::Any> {
         self
     }
-}
+} 
 
 pub struct Document {
     nodes: Vec<Box<dyn Node>>,
@@ -53,8 +61,8 @@ impl Node for Document {
         self.nodes.token_literal()
     }
 
-    fn evaluate(&self) -> String {
-        self.nodes.evaluate()
+    fn translate(&self) -> String {
+        self.nodes.translate()
     }
 
     fn as_any(self: Box<Self>) -> Box<dyn Any> {
@@ -84,9 +92,9 @@ impl Node for Vec<Box<dyn Node>> {
         }
     }
 
-    fn evaluate(&self) -> String {
+    fn translate(&self) -> String {
         if self.len() > 0 {
-            let literal: String = self.iter().map(|x| x.evaluate()).collect();
+            let literal: String = self.iter().map(|x| x.translate()).collect();
             literal
         } else {
             String::from("")

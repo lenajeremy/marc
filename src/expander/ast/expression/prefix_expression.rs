@@ -1,8 +1,8 @@
 use crate::expander::ast::{Node, expression::Expression, operators::Op};
 
 pub struct PrefixExpression {
-    operator: Op,
-    right: Box<Expression>,
+    pub operator: Op,
+    pub right: Box<Expression>,
 }
 
 impl PrefixExpression {

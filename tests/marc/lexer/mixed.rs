@@ -1,7 +1,4 @@
-use md_to_html::marc::{
-    lexer::Lexer,
-    token::TokenType,
-};
+use md_to_html::marc::{lexer::Lexer, token::TokenType};
 
 #[test]
 fn test_complex_mixed() {

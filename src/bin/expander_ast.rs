@@ -21,5 +21,6 @@ fn main() {
     let mut parser = Parser::new(lexer);
     let program = parser.parse_document();
 
-    println!("{}", program.token_literal());
+    println!("{}", program.translate());
+    // println!("{}", program.token_literal());
 }

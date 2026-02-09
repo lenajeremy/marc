@@ -1,6 +1,9 @@
 use crate::expander::{
-    ast::expression::Expression, parselets::PrefixParselet, parser::Parser,
-    precedence::Precedence, token::{Token, TokenType},
+    ast::expression::Expression,
+    parselets::PrefixParselet,
+    parser::Parser,
+    precedence::Precedence,
+    token::{Token, TokenType},
 };
 
 pub struct GroupedExpressionParselet;

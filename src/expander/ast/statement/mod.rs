@@ -1,14 +1,14 @@
-pub mod import_statement;
-pub mod variable_assignment_statement;
 pub mod function_definition_statement;
+pub mod import_statement;
 pub mod return_statement;
+pub mod variable_assignment_statement;
 
-use std::any::Any;
-pub use import_statement::*;
-pub use variable_assignment_statement::*;
-pub use function_definition_statement::*;
-pub use return_statement::*;
 use crate::expander::ast::Node;
+pub use function_definition_statement::*;
+pub use import_statement::*;
+pub use return_statement::*;
+use std::any::Any;
+pub use variable_assignment_statement::*;
 
 enum Statement {
     Import(ImportStatement),
@@ -27,7 +27,7 @@ impl Node for Statement {
         }
     }
 
-    fn evaluate(&self) -> String {
+    fn translate(&self) -> String {
         self.token_literal()
     }
 

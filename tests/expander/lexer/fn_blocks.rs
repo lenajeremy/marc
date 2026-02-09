@@ -34,7 +34,10 @@ fn test_fn_block_tokens() {
 
     for expected in expected_tokens {
         let token = l.next_token();
-        assert_eq!(token.token_type.as_string(), expected.token_type.as_string());
+        assert_eq!(
+            token.token_type.as_string(),
+            expected.token_type.as_string()
+        );
         assert_eq!(token.literal, expected.literal);
     }
 }

@@ -2,7 +2,7 @@
 
 # Hello World
 
-{% if name == "Jeremiah" %}
+{% if person.name == "Jeremiah" %}
 ### Hello Jeremiah
 {% endif %}
 

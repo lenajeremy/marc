@@ -18,9 +18,7 @@ fn test_for_block() {
 
     let mut expected_program = Document::new();
 
-    let list_expr = Expression::VariableAccess(VariableAccessExpression::new(
-        "items".to_string(),
-    ));
+    let list_expr = Expression::VariableAccess(VariableAccessExpression::new("items".to_string()));
     let variable = VariableAccessExpression::new("item".to_string());
     let mut for_block = ForBlock::new(list_expr, variable);
 

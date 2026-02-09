@@ -1,4 +1,4 @@
-use crate::expander::ast::{expression::Expression, Node};
+use crate::expander::ast::{Node, expression::Expression};
 
 pub struct ReturnStatement {
     value: Box<Expression>,
@@ -19,7 +19,7 @@ impl Node for ReturnStatement {
         self.literal()
     }
 
-    fn evaluate(&self) -> String {
+    fn translate(&self) -> String {
         self.token_literal()
     }
 

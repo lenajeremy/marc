@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-use std::panic;
 use crate::expander::{
     ast::{
         Document, MarcNode, Node,
@@ -19,6 +17,8 @@ use crate::expander::{
     },
     token::{Token, TokenType as TT},
 };
+use std::collections::HashMap;
+use std::panic;
 
 pub struct Parser {
     curr_token: Token,
@@ -214,7 +214,7 @@ impl Parser {
         while !(self.curr_token.token_type == TT::KeywordStart
             && self.next_token.token_type == TT::EndFor)
         {
-            let node = self.parse_block_node();
+            let node = self.parse();
             if node.token_literal() != Expression::Empty.token_literal() {
                 for_block.add_operation(node);
             }
@@ -246,7 +246,7 @@ impl Parser {
         while !(self.curr_token.token_type == TT::KeywordStart
             && self.next_token.token_type == TT::EndIf)
         {
-            let node = self.parse_block_node();
+            let node = self.parse();
             if node.token_literal() != Expression::Empty.token_literal() {
                 if_block.add_valid_block(node);
             }

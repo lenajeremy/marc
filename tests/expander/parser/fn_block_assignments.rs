@@ -1,6 +1,6 @@
 use md_to_html::expander::{
     ast::{
-        Document, MarcNode, Node,
+        Document, Node,
         expression::{Expression, InfixExpression, IntegerExpression, VariableAccessExpression},
         operators::{Math, Op},
         statement::{FunctionDefinitionStatement, ReturnStatement, VariableAssignmentStatement},

@@ -1,4 +1,4 @@
-use crate::expander::ast::{statement::ReturnStatement, Node};
+use crate::expander::ast::{Node, statement::ReturnStatement};
 
 pub struct FunctionDefinitionStatement {
     name: String,
@@ -36,10 +36,7 @@ impl FunctionDefinitionStatement {
         };
         format!(
             "FunctionDefinitionStatement(\"fn {}({}) {{ body={}, return={} }}\")",
-            self.name,
-            params,
-            body_literal,
-            return_literal
+            self.name, params, body_literal, return_literal
         )
     }
 }
@@ -49,7 +46,7 @@ impl Node for FunctionDefinitionStatement {
         self.literal()
     }
 
-    fn evaluate(&self) -> String {
+    fn translate(&self) -> String {
         self.token_literal()
     }
 
