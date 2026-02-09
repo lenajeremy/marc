@@ -20,4 +20,16 @@ impl PrefixExpression {
             right,
         }
     }
+
+    fn evaluate(&self) -> isize {
+        // match self.operator {
+        //     Op::Math(math_operator) => {
+        //         let right_expression_evaluated = self.right.evaluate();
+        //         match math_operator {
+        //
+        //         }
+        //     }
+        // }
+        0
+    }
 }

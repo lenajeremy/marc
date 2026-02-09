@@ -12,7 +12,7 @@ impl Node for Link {
         format!("Link(href: \"{}\", alt: \"{}\")", self.href, self.alt_text)
     }
 
-    fn translate(&self) -> String {
+    fn evaluate(&self) -> String {
         format!("<a href = \"{}\">{}</a>", self.href, self.alt_text)
     }
 

@@ -1,7 +1,14 @@
 pub mod array_access;
+pub mod comparisons;
+pub mod for_block;
+pub mod fn_block;
+pub mod fn_block_assignments;
 pub mod function_call;
 pub mod grouped_expression;
+pub mod sample_full;
 pub mod infix_operators;
+pub mod if_block;
+pub mod import_statement;
 pub mod integer;
 pub mod object_access;
 pub mod operator_precedence;

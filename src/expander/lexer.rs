@@ -37,6 +37,10 @@ impl Lexer {
         lexer
     }
 
+    pub fn set_detailed(&mut self, value: bool) {
+        self.is_detailed = value;
+    }
+
     /// `clean_input` removes only space characters from both ends of each line of the provided
     /// input.
     ///
@@ -74,8 +78,11 @@ impl Lexer {
             "endif" => Token::new(TT::EndIf, text, start_line, start_col),
             "for" => Token::new(TT::For, text, start_line, start_col),
             "endfor" => Token::new(TT::EndFor, text, start_line, start_col),
+            "fn" => Token::new(TT::Fn, text, start_line, start_col),
+            "endfn" => Token::new(TT::EndFn, text, start_line, start_col),
             "include" => Token::new(TT::Include, text, start_line, start_col),
             "import" => Token::new(TT::Import, text, start_line, start_col),
+            "return" => Token::new(TT::Return, text, start_line, start_col),
             "in" => Token::new(TT::In, text, start_line, start_col),
             "false" => Token::new(TT::False, text, start_line, start_col),
             "true" => Token::new(TT::True, text, start_line, start_col),
@@ -127,10 +134,22 @@ impl Lexer {
         }
 
         let token = match self.ch {
-            Some('\n') => Token::new(TT::NewLine, "\n".to_string(), self.line, self.col),
+            Some('\n') => {
+                self.is_detailed = false;
+                Token::new(TT::NewLine, "\n".to_string(), self.line, self.col)
+            }
             Some('\"') => Token::new(TT::DoubleQuote, "\"".to_string(), self.line, self.col),
             Some('\'') => Token::new(TT::SingleQuote, "'".to_string(), self.line, self.col),
-            Some('>') => Token::new(TT::GreaterThan, ">".to_string(), self.line, self.col),
+            Some('>') => {
+                let start_line = self.line;
+                let start_col = self.col;
+                if self.peek_char(1) == '=' {
+                    self.read_char();
+                    Token::new(TT::GreQual, ">=".to_string(), start_line, start_col)
+                } else {
+                    Token::new(TT::GreaterThan, ">".to_string(), start_line, start_col)
+                }
+            }
             Some('+') => Token::new(TT::Plus, "+".to_string(), self.line, self.col),
             Some('-') => Token::new(TT::Minus, "-".to_string(), self.line, self.col),
             Some('*') => Token::new(TT::Asterisk, "*".to_string(), self.line, self.col),
@@ -140,13 +159,32 @@ impl Lexer {
             Some(']') => Token::new(TT::RightBracket, "]".to_string(), self.line, self.col),
             Some('(') => Token::new(TT::LeftParen, "(".to_string(), self.line, self.col),
             Some(')') => Token::new(TT::RightParen, ")".to_string(), self.line, self.col),
-            Some('!') => Token::new(TT::Exclamation, "!".to_string(), self.line, self.col),
+            Some('!') => {
+                let start_line = self.line;
+                let start_col = self.col;
+                if self.peek_char(1) == '=' {
+                    self.read_char();
+                    Token::new(TT::NeQual, "!=".to_string(), start_line, start_col)
+                } else {
+                    Token::new(TT::Exclamation, "!".to_string(), start_line, start_col)
+                }
+            }
             Some(',') => Token::new(TT::Comma, ",".to_string(), self.line, self.col),
             Some(';') => {
                 if self.peek_char(1) == '\n' {
                     self.is_detailed = false;
                 }
                 Token::new(TT::Semicolon, ";".to_string(), self.line, self.col)
+            }
+            Some('<') => {
+                let start_line = self.line;
+                let start_col = self.col;
+                if self.peek_char(1) == '=' {
+                    self.read_char();
+                    Token::new(TT::LeQual, "<=".to_string(), start_line, start_col)
+                } else {
+                    Token::new(TT::LessThan, "<".to_string(), start_line, start_col)
+                }
             }
             Some('=') => {
                 let peek_char = self.peek_char(1);

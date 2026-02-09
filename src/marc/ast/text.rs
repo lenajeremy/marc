@@ -21,7 +21,7 @@ impl Node for Text {
         self
     }
 
-    fn translate(&self) -> String {
+    fn evaluate(&self) -> String {
         self.value.to_owned()
     }
 }
@@ -57,8 +57,8 @@ impl Node for BoldText {
         self
     }
 
-    fn translate(&self) -> String {
-        format!("<strong>{}</strong>", self.inner.translate())
+    fn evaluate(&self) -> String {
+        format!("<strong>{}</strong>", self.inner.evaluate())
     }
 }
 
@@ -89,8 +89,8 @@ impl Node for ItalicizedText {
         format!("Italics({})", self.inner.token_literal())
     }
 
-    fn translate(&self) -> String {
-        format!("<em>{}</em>", self.inner.translate())
+    fn evaluate(&self) -> String {
+        format!("<em>{}</em>", self.inner.evaluate())
     }
 
     fn as_any(self: Box<Self>) -> Box<dyn Any> {
@@ -127,8 +127,8 @@ impl Node for ParagraphText {
         self
     }
 
-    fn translate(&self) -> String {
-        format!("<p>{}</p>", self.inner.translate())
+    fn evaluate(&self) -> String {
+        format!("<p>{}</p>", self.inner.evaluate())
     }
 }
 

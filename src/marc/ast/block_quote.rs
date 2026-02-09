@@ -21,8 +21,8 @@ impl Node for BlockQuote {
         format!("BlockQuote(\"content: {}\")", self.inner.token_literal())
     }
 
-    fn translate(&self) -> String {
-        format!("<blockquote>{}</blockquote>", self.inner.translate())
+    fn evaluate(&self) -> String {
+        format!("<blockquote>{}</blockquote>", self.inner.evaluate())
     }
 
     fn as_any(self: Box<Self>) -> Box<dyn std::any::Any> {

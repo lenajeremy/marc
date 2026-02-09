@@ -24,7 +24,7 @@ fn main() {
 
     let program = p.parse_program();
 
-    let html = program.translate();
+    let html = program.evaluate();
 
     let out_file: Vec<_> = in_file.split(".").collect();
     let out_file = out_file.first().unwrap().to_string() + ".html";
@@ -42,17 +42,4 @@ fn main() {
 
 fn out(text: String, file: &str) -> Result<(), std::io::Error> {
     std::fs::write(file, text)
-}
-
-fn lexer() {
-    let input = "Hello {{ name.something }}";
-    let mut lexer = Lexer::from(input);
-
-    loop {
-        let token = lexer.next_token();
-        println!("{token:?}");
-        if token.token_type == TokenType::EOF {
-            break;
-        }
-    }
 }

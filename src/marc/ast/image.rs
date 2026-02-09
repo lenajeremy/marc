@@ -17,7 +17,7 @@ impl Node for Image {
         format!("Image(src = \"{}\", alt = \"{}\")", self.src, self.alt)
     }
 
-    fn translate(&self) -> String {
+    fn evaluate(&self) -> String {
         format!("<img src = \"{}\" alt = \"{}\" />", self.src, self.alt)
     }
 

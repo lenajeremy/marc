@@ -16,7 +16,7 @@ impl Node for TextNode {
         format!("Text(\"{}\")", self.text.clone())
     }
 
-    fn translate(&self) -> String {
+    fn evaluate(&self) -> String {
         self.token_literal()
     }
 

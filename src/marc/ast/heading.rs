@@ -32,11 +32,11 @@ impl Node for Heading {
         )
     }
 
-    fn translate(&self) -> String {
+    fn evaluate(&self) -> String {
         format!(
             "<h{}>{}</h{}>",
             self.level,
-            self.inner.translate(),
+            self.inner.evaluate(),
             self.level
         )
     }

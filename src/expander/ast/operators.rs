@@ -42,6 +42,7 @@ impl Op {
             TT::GreQual => Op::Comp(Comparators::GreaterQuals),
             TT::LeQual => Op::Comp(Comparators::LessQuals),
             TT::Equals => Op::Comp(Comparators::Quals),
+            TT::NeQual => Op::Comp(Comparators::NeQuals),
             _ => return None,
         };
         Some(operator)

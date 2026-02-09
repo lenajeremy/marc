@@ -27,12 +27,12 @@ impl Node for InlineContainer {
         self.children.token_literal()
     }
 
-    fn as_any(self: Box<Self>) -> Box<dyn Any> {
-        self
+    fn evaluate(&self) -> String {
+        self.children.evaluate()
     }
 
-    fn translate(&self) -> String {
-        self.children.translate()
+    fn as_any(self: Box<Self>) -> Box<dyn Any> {
+        self
     }
 }
 

@@ -4,18 +4,22 @@ pub mod expression;
 pub mod marcblocks;
 pub mod operators;
 pub mod text_node;
+pub mod statement;
 
 pub trait Node: Any {
     fn token_literal(&self) -> String;
-    fn translate(&self) -> String;
+    fn evaluate(&self) -> String;
     fn as_any(self: Box<Self>) -> Box<dyn Any>;
 }
 
 pub enum MarcNode {
     If(marcblocks::IfBlock),
     For(marcblocks::ForBlock),
+    Import(statement::ImportStatement),
     Text(text_node::TextNode),
     Expression(Box<expression::Expression>),
+    FunctionDefinition(statement::FunctionDefinitionStatement),
+    Statement(Box<dyn Node>),
 }
 
 impl Node for MarcNode {
@@ -25,10 +29,13 @@ impl Node for MarcNode {
             MarcNode::If(b) => b.token_literal(),
             MarcNode::Text(b) => b.token_literal(),
             MarcNode::Expression(b) => b.token_literal(),
+            MarcNode::FunctionDefinition(b) => b.token_literal(),
+            MarcNode::Import(b) => b.token_literal(),
+            MarcNode::Statement(b) => b.token_literal(),
         }
     }
 
-    fn translate(&self) -> String {
+    fn evaluate(&self) -> String {
         self.token_literal()
     }
 
@@ -46,8 +53,8 @@ impl Node for Document {
         self.nodes.token_literal()
     }
 
-    fn translate(&self) -> String {
-        self.nodes.translate()
+    fn evaluate(&self) -> String {
+        self.nodes.evaluate()
     }
 
     fn as_any(self: Box<Self>) -> Box<dyn Any> {
@@ -77,9 +84,9 @@ impl Node for Vec<Box<dyn Node>> {
         }
     }
 
-    fn translate(&self) -> String {
+    fn evaluate(&self) -> String {
         if self.len() > 0 {
-            let literal: String = self.iter().map(|x| x.translate()).collect();
+            let literal: String = self.iter().map(|x| x.evaluate()).collect();
             literal
         } else {
             String::from("")

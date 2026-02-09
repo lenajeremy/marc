@@ -6,3 +6,8 @@
 - [x] Function call argument parsing never advances after parsing an argument and does not consume the closing `)`, causing infinite loops.
 - [x] Array access parselet does not consume the closing `]`, which can leak tokens inside larger expressions (e.g., array access as a function arg).
 - [x] Object access parselet allowed function-call binding on the right side (`obj.method(arg)` parsed as `obj.(method(arg))`).
+
+# Incomplete implementations
+- [x] Complete function statement lexing and parsing
+- [x] Complete return statement lexing and parsing
+- [ ] The object system for handling variables, etc

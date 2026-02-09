@@ -1,10 +1,7 @@
 use md_to_html::expander::{
     ast::{
         Document, Node,
-        expression::{
-            Expression, InfixExpression, IntegerExpression, PrefixExpression,
-            VariableAccessExpression,
-        },
+        expression::{Expression, InfixExpression, PrefixExpression, VariableAccessExpression},
         operators::{Math, Op},
     },
     lexer::Lexer,

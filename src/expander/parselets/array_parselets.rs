@@ -10,7 +10,7 @@ pub struct ArrayParselet;
 
 impl InfixParselet for ArrayParselet {
     fn get_precedence(&self, _: Token) -> u8 {
-        Precedence::ARRAY_ACCESS as u8
+        Precedence::ArrayAccess as u8
     }
 
     fn parse_expression(&self, parser: &mut Parser, left: Box<Expression>) -> Box<Expression> {

@@ -11,7 +11,7 @@ pub mod text;
 
 pub trait Node: Any {
     fn token_literal(&self) -> String;
-    fn translate(&self) -> String;
+    fn evaluate(&self) -> String;
     fn as_any(self: Box<Self>) -> Box<dyn Any>;
 }
 
@@ -32,8 +32,8 @@ impl Node for Program {
         self.nodes.token_literal()
     }
 
-    fn translate(&self) -> String {
-        let inside: String = self.nodes.iter().map(|node| node.translate()).collect();
+    fn evaluate(&self) -> String {
+        let inside: String = self.nodes.iter().map(|node| node.evaluate()).collect();
         format!(
             "
             <!DOCTYPE html>
@@ -66,9 +66,9 @@ impl Node for Vec<Box<dyn Node>> {
         }
     }
 
-    fn translate(&self) -> String {
+    fn evaluate(&self) -> String {
         if self.len() > 0 {
-            let literal: String = self.iter().map(|x| x.translate()).collect();
+            let literal: String = self.iter().map(|x| x.evaluate()).collect();
             literal
         } else {
             String::from("")
@@ -91,9 +91,9 @@ impl Node for Vec<Box<dyn Inline>> {
         }
     }
 
-    fn translate(&self) -> String {
+    fn evaluate(&self) -> String {
         if self.len() > 0 {
-            let literal: String = self.iter().map(|x| x.translate()).collect();
+            let literal: String = self.iter().map(|x| x.evaluate()).collect();
             literal
         } else {
             String::from("")
@@ -116,7 +116,7 @@ impl Node for Vec<Box<dyn Block>> {
         }
     }
 
-    fn translate(&self) -> String {
+    fn evaluate(&self) -> String {
         todo!()
     }
 

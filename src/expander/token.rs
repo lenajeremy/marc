@@ -33,12 +33,16 @@ pub enum TokenType {
     GreQual,     // >=
     LeQual,      // <=
     Equals,      // ==
+    NeQual,      // !=
 
     // Keywords
     If,
     EndIf,
     For,
     EndFor,
+    Fn,
+    EndFn,
+    Return,
     In,
     Import,
     Include,
@@ -74,6 +78,8 @@ impl TokenType {
             TokenType::EndIf => "endif".to_string(),
             TokenType::For => "for".to_string(),
             TokenType::EndFor => "endfor".to_string(),
+            TokenType::Fn => "fn".to_string(),
+            TokenType::EndFn => "endfn".to_string(),
             TokenType::In => "in".to_string(),
             TokenType::Import => "import".to_string(),
             TokenType::Include => "include".to_string(),
@@ -89,12 +95,14 @@ impl TokenType {
             TokenType::GreQual => ">=".to_string(),
             TokenType::LeQual => "<=".to_string(),
             TokenType::Equals => "==".to_string(),
+            TokenType::NeQual => "!=".to_string(),
             TokenType::At => "@".to_string(),
             TokenType::Integer => "INTEGER".to_string(),
             TokenType::SingleQuote => "'".to_string(),
             TokenType::DoubleQuote => "\"".to_string(),
             TokenType::Semicolon => ";".to_string(),
             TokenType::Comma => ",".to_string(),
+            TokenType::Return => "return".to_string(),
         }
     }
 }

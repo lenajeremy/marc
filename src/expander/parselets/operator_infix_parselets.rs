@@ -16,6 +16,12 @@ impl InfixParselet for OperatorInfixParselet {
         let precendence = match token.token_type {
             TokenType::Plus | TokenType::Minus => Precedence::SUM,
             TokenType::Asterisk | TokenType::ForwardSlash => Precedence::PRODUCT,
+            TokenType::GreaterThan
+            | TokenType::LessThan
+            | TokenType::GreQual
+            | TokenType::LeQual
+            | TokenType::Equals
+            | TokenType::NeQual => Precedence::COMPARISON,
             _ => panic!(
                 "Expected math operator token ('+', '-', '/', '*'), got {}",
                 token.literal

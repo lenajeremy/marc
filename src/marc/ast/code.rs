@@ -19,7 +19,7 @@ impl Node for InlineCode {
         format!("InlineCode(\"{}\")", self.code_content)
     }
 
-    fn translate(&self) -> String {
+    fn evaluate(&self) -> String {
         format!("<code>{}</code>", self.code_content)
     }
 
@@ -54,7 +54,7 @@ impl Node for CodeBlock {
         )
     }
 
-    fn translate(&self) -> String {
+    fn evaluate(&self) -> String {
         format!("<pre>{}</pre>", self.code_content)
     }
 

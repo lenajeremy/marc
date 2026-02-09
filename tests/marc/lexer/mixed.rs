@@ -1,6 +1,6 @@
 use md_to_html::marc::{
     lexer::Lexer,
-    token::{Token, TokenType},
+    token::TokenType,
 };
 
 #[test]

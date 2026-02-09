@@ -11,7 +11,6 @@ pub struct IfBlock {
     expression: Expression,
     valid: Vec<Box<MarcNode>>,
     invalid: Vec<Box<MarcNode>>,
-    literal: String,
 }
 
 impl IfBlock {
@@ -20,29 +19,41 @@ impl IfBlock {
             expression,
             valid: vec![],
             invalid: vec![],
-            literal: String::new(),
         }
     }
 
-    fn add_valid_block(&mut self, block: Box<MarcNode>) {
+    pub fn add_valid_block(&mut self, block: Box<MarcNode>) {
         self.valid.push(block)
     }
 
-    fn add_invalid_block(&mut self, block: Box<MarcNode>) {
+    pub fn add_invalid_block(&mut self, block: Box<MarcNode>) {
         self.invalid.push(block)
-    }
-
-    fn set_literal(&mut self, literal: String) {
-        self.literal = literal
     }
 }
 
 impl Node for IfBlock {
     fn token_literal(&self) -> String {
-        self.literal.clone()
+        let valid_literal = if self.valid.is_empty() {
+            "[]".to_string()
+        } else {
+            let inner: String = self.valid.iter().map(|x| x.token_literal() + ",").collect();
+            format!("[{}]", &inner[..inner.len() - 1])
+        };
+        let invalid_literal = if self.invalid.is_empty() {
+            "[]".to_string()
+        } else {
+            let inner: String = self.invalid.iter().map(|x| x.token_literal() + ",").collect();
+            format!("[{}]", &inner[..inner.len() - 1])
+        };
+        format!(
+            "IfBlock(condition={}, valid={}, invalid={})",
+            self.expression.token_literal(),
+            valid_literal,
+            invalid_literal
+        )
     }
 
-    fn translate(&self) -> String {
+    fn evaluate(&self) -> String {
         // this would be updated to take the scope
         self.token_literal()
     }
@@ -56,34 +67,43 @@ pub struct ForBlock {
     main_list: Expression,
     variable: VariableAccessExpression,
     operations: Vec<Box<dyn Node>>,
-    literal: String,
 }
 
 impl ForBlock {
     pub fn new(list: Expression, variable: VariableAccessExpression) -> ForBlock {
         ForBlock {
             main_list: list,
-            variable: variable,
+            variable,
             operations: vec![],
-            literal: String::new(),
         }
     }
 
     pub fn add_operation(&mut self, node: Box<dyn Node>) {
         self.operations.push(node)
     }
-
-    pub fn set_literal(&mut self, literal: String) {
-        self.literal = literal
-    }
 }
 
 impl Node for ForBlock {
     fn token_literal(&self) -> String {
-        self.literal.to_owned()
+        let ops_literal = if self.operations.is_empty() {
+            "[]".to_string()
+        } else {
+            let inner: String = self
+                .operations
+                .iter()
+                .map(|x| x.token_literal() + ",")
+                .collect();
+            format!("[{}]", &inner[..inner.len() - 1])
+        };
+        format!(
+            "ForBlock(variable={}, list={}, body={})",
+            self.variable.literal(),
+            self.main_list.token_literal(),
+            ops_literal
+        )
     }
 
-    fn translate(&self) -> String {
+    fn evaluate(&self) -> String {
         self.token_literal()
     }
 

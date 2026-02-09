@@ -8,6 +8,7 @@ pub mod object_access_expression;
 pub mod prefix_expression;
 pub mod string_expression;
 pub mod variable_access_expression;
+pub mod boolean_expression;
 
 pub use array_access_expression::*;
 pub use function_call_expression::*;
@@ -49,7 +50,7 @@ impl Node for Expression {
         }
     }
 
-    fn translate(&self) -> String {
+    fn evaluate(&self) -> String {
         self.token_literal()
     }
 

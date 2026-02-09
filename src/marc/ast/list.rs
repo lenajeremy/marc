@@ -19,8 +19,8 @@ impl Node for UnorderedList {
         format!("UnorderedList(content={})", self.items.token_literal())
     }
 
-    fn translate(&self) -> String {
-        format!("<ul>{}</ul>", self.items.translate())
+    fn evaluate(&self) -> String {
+        format!("<ul>{}</ul>", self.items.evaluate())
     }
 
     fn as_any(self: Box<Self>) -> Box<dyn std::any::Any> {
@@ -51,8 +51,8 @@ impl Node for OrderedList {
         format!("OrderedList(content={})", self.items.token_literal())
     }
 
-    fn translate(&self) -> String {
-        format!("<ol>{}</ol>", self.items.translate())
+    fn evaluate(&self) -> String {
+        format!("<ol>{}</ol>", self.items.evaluate())
     }
 
     fn as_any(self: Box<Self>) -> Box<dyn std::any::Any> {
@@ -85,8 +85,8 @@ impl Node for ListItem {
         format!("ListItem(content={})", self.inner.token_literal())
     }
 
-    fn translate(&self) -> String {
-        format!("<li>{}</li>", self.inner.translate())
+    fn evaluate(&self) -> String {
+        format!("<li>{}</li>", self.inner.evaluate())
     }
 
     fn as_any(self: Box<Self>) -> Box<dyn std::any::Any> {

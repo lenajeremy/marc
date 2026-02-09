@@ -8,6 +8,7 @@ pub mod object_parselets;
 pub mod operator_infix_parselets;
 pub mod operator_prefix_parselets;
 pub mod variable_access_parselet;
+pub mod string_parselet;
 
 pub trait PrefixParselet {
     fn get_precedence(&self) -> u8;
