@@ -3,8 +3,8 @@ use std::env;
 
 fn main() {
     let args: Vec<_> = env::args().collect();
-    if args.len() <= 1 {
-        eprintln!("usage: expander_ast <file>.md");
+    if args.len() <= 2 {
+        eprintln!("usage: expander_ast <file>.md <outfile>.md");
         std::process::exit(1);
     }
 
@@ -21,6 +21,6 @@ fn main() {
     let mut parser = Parser::new(lexer);
     let program = parser.parse_document();
 
-    println!("{}", program.translate());
-    // println!("{}", program.token_literal());
+    let out_file = args[2].as_str();
+    std::fs::write(out_file, program.translate()).unwrap();
 }

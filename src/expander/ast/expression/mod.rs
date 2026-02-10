@@ -11,7 +11,7 @@ pub mod string_expression;
 pub mod variable_access_expression;
 
 pub use super::operators::{Comparators, Math, Op};
-pub use crate::expander::object::Object;
+pub use crate::expander::object::{Object, TRUE, FALSE, NONE};
 pub use array_access_expression::*;
 pub use function_call_expression::*;
 pub use infix_expression::*;
@@ -53,9 +53,7 @@ impl Node for Expression {
     }
 
     fn translate(&self) -> String {
-        let res = self.evaluate().inspect();
-        println!("Translating an expression");
-        res
+        self.evaluate().inspect()
     }
 
     fn as_any(self: Box<Self>) -> Box<dyn std::any::Any> {
@@ -82,7 +80,8 @@ fn evaluate_prefix_expressions(prefix_expression: &PrefixExpression) -> Object {
             } else {
                 panic!("Booleans can only have ! as prefix operators")
             }
-        }
+        },
+        Object::None => panic!("Prefix operator cannot be applied on object type none")
     }
 }
 
@@ -130,6 +129,16 @@ fn evaluate_infix_expression(infix_expression: &InfixExpression) -> Object {
                 _ => panic!("Invalid operator"),
             }
         }
+        Object::None => {
+            if !(infix_expression.operator.string() == "==" && infix_expression.operator.string() == "!=") {
+                panic!("Object type none cannot be operated with object type {}", right_expression_evaluated.get_type())
+            }
+
+            match right_expression_evaluated {
+                Object::None => TRUE,
+                _ => FALSE,
+            }
+        },
     }
 }
 
@@ -140,9 +149,9 @@ impl Expression {
             Self::Prefix(prefix_expression) => evaluate_prefix_expressions(prefix_expression),
             Self::OperatorInfix(infix_expression) => evaluate_infix_expression(infix_expression),
             Self::Integer(integer_expression) => Object::Integer(integer_expression.value),
-            Self::True => Object::Boolean(true),
-            Self::False => Object::Boolean(false),
-            _ => Object::Boolean(false),
+            Self::True => TRUE,
+            Self::False => FALSE,
+            _ => NONE,
             // Expression::Empty => {}
         }
     }
