@@ -23,4 +23,5 @@ fn main() {
 
     let out_file = args[2].as_str();
     std::fs::write(out_file, program.translate()).unwrap();
+    println!("{}", program.token_literal())
 }

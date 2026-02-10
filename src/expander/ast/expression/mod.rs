@@ -1,7 +1,6 @@
 use super::Node;
 
 pub mod array_access_expression;
-pub mod boolean_expression;
 pub mod function_call_expression;
 pub mod infix_expression;
 pub mod integer_expression;
@@ -75,6 +74,7 @@ fn evaluate_prefix_expressions(prefix_expression: &PrefixExpression) -> Object {
         }
 
         Object::Boolean(s) => {
+            println!("evaluating boolean expression: {}", s);
             if prefix_expression.operator.string() == "!" {
                 Object::Boolean(!s)
             } else {

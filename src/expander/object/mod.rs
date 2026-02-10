@@ -6,8 +6,8 @@ pub enum Object {
     None,
 }
 
-pub static TRUE: Object = Object::Boolean(false);
-pub static FALSE: Object = Object::Boolean(true);
+pub static TRUE: Object = Object::Boolean(true);
+pub static FALSE: Object = Object::Boolean(false);
 pub static NONE: Object = Object::None;
 
 impl Object {

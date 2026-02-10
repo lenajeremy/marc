@@ -19,6 +19,7 @@ use crate::expander::{
 };
 use std::collections::HashMap;
 use std::panic;
+use crate::expander::parselets::boolean_parselet::BooleanParselet;
 
 pub struct Parser {
     curr_token: Token,
@@ -33,6 +34,7 @@ static OPERATOR_PREFIX_PARSELET: OperatorPrefixParselet = OperatorPrefixParselet
 static INTEGER_PARSELET: IntegerParselet = IntegerParselet;
 static STRING_PARSELET: StringParselet = StringParselet;
 static GROUPED_OPERATION_PARSELET: GroupedExpressionParselet = GroupedExpressionParselet;
+static BOOLEAN_PREFIX_PARSELET: BooleanParselet = BooleanParselet;
 static OPERATOR_INFIX_PARSELET: OperatorInfixParselet = OperatorInfixParselet;
 static FUNCTION_CALL_PARSELET: FunctionCallParselet = FunctionCallParselet;
 static ARRAY_PARSELET: ArrayParselet = ArrayParselet;
@@ -76,6 +78,8 @@ impl Parser {
         parser.register_prefix_parselet(TT::DoubleQuote, &STRING_PARSELET);
         parser.register_prefix_parselet(TT::SingleQuote, &STRING_PARSELET);
         parser.register_prefix_parselet(TT::LeftParen, &GROUPED_OPERATION_PARSELET);
+        parser.register_prefix_parselet(TT::True, &BOOLEAN_PREFIX_PARSELET);
+        parser.register_prefix_parselet(TT::False, &BOOLEAN_PREFIX_PARSELET);
 
         // register infix parselets
         parser.register_infix_parselet(TT::Plus, &OPERATOR_INFIX_PARSELET);
@@ -93,7 +97,7 @@ impl Parser {
         parser.register_infix_parselet(TT::LeftBracket, &ARRAY_PARSELET);
         parser.register_infix_parselet(TT::LeftParen, &FUNCTION_CALL_PARSELET);
 
-        return parser;
+        parser
     }
 
     pub fn advance_token(&mut self) {
@@ -131,7 +135,13 @@ impl Parser {
             TT::LeftDoubleBrace => {
                 self.advance_token();
                 MarcNode::Expression(self.parse_expression(0))
-            }
+            },
+            TT::True => {
+                MarcNode::Expression(Box::new(Expression::True))
+            },
+            TT::False => {
+                MarcNode::Expression(Box::new(Expression::False))
+            },
             _ => MarcNode::Expression(Box::new(Expression::Empty)),
         };
         self.advance_token();

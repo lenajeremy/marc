@@ -9,7 +9,8 @@ pub mod operator_infix_parselets;
 pub mod operator_prefix_parselets;
 pub mod string_parselet;
 pub mod variable_access_parselet;
-
+// pub mod boolean_prefix_parselet;
+pub mod boolean_parselet;
 pub trait PrefixParselet {
     fn get_precedence(&self) -> u8;
     fn parse_expression(&self, parser: &mut Parser, token: Token) -> Box<Expression>;

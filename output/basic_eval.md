@@ -6,4 +6,4 @@ Helloooo every1
 ## is 4 * 6 == 8 * 3?
 4 * 6 == 8 * 3 is true
 
-50
+true
