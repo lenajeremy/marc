@@ -10,6 +10,7 @@ pub mod string_expression;
 pub mod variable_access_expression;
 
 pub use super::operators::{Comparators, Math, Op};
+use crate::expander::environment::Environment;
 pub use crate::expander::object::{FALSE, NONE, Object, TRUE};
 pub use array_access_expression::*;
 pub use function_call_expression::*;
@@ -51,8 +52,8 @@ impl Node for Expression {
         }
     }
 
-    fn translate(&self) -> String {
-        self.evaluate().inspect()
+    fn translate(&self, env: &mut Environment) -> String {
+        self.evaluate(env).inspect()
     }
 
     fn as_any(self: Box<Self>) -> Box<dyn std::any::Any> {
@@ -60,8 +61,11 @@ impl Node for Expression {
     }
 }
 
-fn evaluate_prefix_expressions(prefix_expression: &PrefixExpression) -> Object {
-    let right_expression_evaluated = prefix_expression.right.evaluate();
+fn evaluate_prefix_expressions(
+    prefix_expression: &PrefixExpression,
+    env: &mut Environment,
+) -> Object {
+    let right_expression_evaluated = prefix_expression.right.evaluate(env);
     match right_expression_evaluated {
         Object::Integer(i) => {
             if prefix_expression.operator.string() == "+" {
@@ -85,9 +89,9 @@ fn evaluate_prefix_expressions(prefix_expression: &PrefixExpression) -> Object {
     }
 }
 
-fn evaluate_infix_expression(infix_expression: &InfixExpression) -> Object {
-    let left_expression_evaluated = infix_expression.left.evaluate();
-    let right_expression_evaluated = infix_expression.right.evaluate();
+fn evaluate_infix_expression(infix_expression: &InfixExpression, env: &mut Environment) -> Object {
+    let left_expression_evaluated = infix_expression.left.evaluate(env);
+    let right_expression_evaluated = infix_expression.right.evaluate(env);
 
     if left_expression_evaluated.get_type() != right_expression_evaluated.get_type() {
         panic!(
@@ -147,14 +151,26 @@ fn evaluate_infix_expression(infix_expression: &InfixExpression) -> Object {
     }
 }
 
+fn evaluate_variable_access_expression(
+    expression: &VariableAccessExpression,
+    env: &mut Environment,
+) -> Object {
+    env.get(expression.variable_name.as_str())
+}
+
 impl Expression {
-    pub fn evaluate(&self) -> Object {
+    pub fn evaluate(&self, env: &mut Environment) -> Object {
         match self {
-            Self::Prefix(prefix_expression) => evaluate_prefix_expressions(prefix_expression),
-            Self::OperatorInfix(infix_expression) => evaluate_infix_expression(infix_expression),
+            Self::Prefix(prefix_expression) => evaluate_prefix_expressions(prefix_expression, env),
+            Self::OperatorInfix(infix_expression) => {
+                evaluate_infix_expression(infix_expression, env)
+            }
             Self::Integer(integer_expression) => Object::Integer(integer_expression.value),
             Self::True => TRUE,
             Self::False => FALSE,
+            Self::VariableAccess(variable_access_expression) => {
+                evaluate_variable_access_expression(variable_access_expression, env)
+            }
             _ => NONE,
             // Expression::Empty => {}
         }

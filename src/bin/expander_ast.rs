@@ -1,4 +1,4 @@
-use md_to_html::expander::{ast::Node, lexer::Lexer, parser::Parser};
+use md_to_html::expander::{ast::Node, environment::Environment, lexer::Lexer, parser::Parser};
 use std::env;
 
 fn main() {
@@ -17,12 +17,13 @@ fn main() {
         }
     };
 
+    let mut env = Environment::new();
+
     let lexer = Lexer::from(input.as_str());
     let mut parser = Parser::new(lexer);
     let program = parser.parse_document();
 
     let out_file = args[2].as_str();
-    println!("translated: {}", program.translate());
-    std::fs::write(out_file, program.translate()).unwrap();
+    std::fs::write(out_file, program.translate(&mut env)).unwrap();
     println!("{}", program.token_literal())
 }

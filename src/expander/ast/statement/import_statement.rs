@@ -1,3 +1,5 @@
+use crate::expander::environment::Environment;
+
 pub struct ImportStatement {
     src: String,
     alias: String,
@@ -21,7 +23,7 @@ impl crate::expander::ast::Node for ImportStatement {
         self.literal()
     }
 
-    fn translate(&self) -> String {
+    fn translate(&self, _env: &mut Environment) -> String {
         self.token_literal()
     }
 

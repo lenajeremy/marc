@@ -1,5 +1,5 @@
 pub struct VariableAccessExpression {
-    variable_name: String,
+    pub variable_name: String,
 }
 
 impl VariableAccessExpression {

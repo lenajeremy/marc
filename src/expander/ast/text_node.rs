@@ -1,3 +1,5 @@
+use crate::expander::environment::Environment;
+
 use super::Node;
 
 #[derive(Clone)]
@@ -16,7 +18,7 @@ impl Node for TextNode {
         format!("Text(\"{}\")", self.text.clone())
     }
 
-    fn translate(&self) -> String {
+    fn translate(&self, _env: &mut Environment) -> String {
         self.text.clone()
     }
 

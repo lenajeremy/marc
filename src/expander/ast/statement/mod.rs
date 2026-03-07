@@ -3,7 +3,7 @@ pub mod import_statement;
 pub mod return_statement;
 pub mod variable_assignment_statement;
 
-use crate::expander::ast::Node;
+use crate::expander::{ast::Node, environment::Environment};
 pub use function_definition_statement::*;
 pub use import_statement::*;
 pub use return_statement::*;
@@ -27,7 +27,7 @@ impl Node for Statement {
         }
     }
 
-    fn translate(&self) -> String {
+    fn translate(&self, _env: &mut Environment) -> String {
         self.token_literal()
     }
 

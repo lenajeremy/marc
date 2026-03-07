@@ -16,7 +16,7 @@ impl Environment {
         self.variables.get(name).cloned().unwrap_or(Object::None)
     }
 
-    fn set(&mut self, name: String, value: Object) -> Object {
+    pub fn set(&mut self, name: String, value: Object) -> Object {
         self.variables.insert(name, value);
         value
     }

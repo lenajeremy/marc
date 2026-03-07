@@ -1,4 +1,7 @@
-use crate::expander::ast::{Node, expression::Expression};
+use crate::expander::{
+    ast::{Node, expression::Expression},
+    environment::Environment,
+};
 
 pub struct ReturnStatement {
     value: Box<Expression>,
@@ -19,7 +22,7 @@ impl Node for ReturnStatement {
         self.literal()
     }
 
-    fn translate(&self) -> String {
+    fn translate(&self, _env: &mut Environment) -> String {
         self.token_literal()
     }
 

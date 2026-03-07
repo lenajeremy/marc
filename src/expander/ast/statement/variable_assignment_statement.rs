@@ -1,5 +1,6 @@
 use crate::expander::ast::Node;
 use crate::expander::ast::expression::Expression;
+use crate::expander::environment::Environment;
 
 pub struct VariableAssignmentStatement {
     identifier: String,
@@ -25,7 +26,10 @@ impl Node for VariableAssignmentStatement {
         self.literal()
     }
 
-    fn translate(&self) -> String {
+    fn translate(&self, env: &mut Environment) -> String {
+        let expression_result = self.value.evaluate(env);
+        env.set(self.identifier.clone(), expression_result);
+
         self.token_literal()
     }
 

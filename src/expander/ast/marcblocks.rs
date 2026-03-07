@@ -57,7 +57,7 @@ impl Node for IfBlock {
         )
     }
 
-    fn translate(&self) -> String {
+    fn translate(&self, _env: &mut Environment) -> String {
         // this would be updated to take the scope
         self.token_literal()
     }
@@ -107,7 +107,7 @@ impl Node for ForBlock {
         )
     }
 
-    fn translate(&self) -> String {
+    fn translate(&self, _env: &mut Environment) -> String {
         self.token_literal()
     }
 
