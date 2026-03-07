@@ -1,11 +1,11 @@
 use std::any::Any;
 
-use crate::expander::ast::MarcNode;
-
 use super::{
     Node,
     expression::{Expression, VariableAccessExpression},
 };
+use crate::expander::ast::MarcNode;
+use crate::expander::environment::Environment;
 
 pub struct IfBlock {
     expression: Expression,

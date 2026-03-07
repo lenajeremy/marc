@@ -22,6 +22,7 @@ fn main() {
     let program = parser.parse_document();
 
     let out_file = args[2].as_str();
+    println!("translated: {}", program.translate());
     std::fs::write(out_file, program.translate()).unwrap();
     println!("{}", program.token_literal())
 }

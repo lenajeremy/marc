@@ -10,7 +10,7 @@ pub mod string_expression;
 pub mod variable_access_expression;
 
 pub use super::operators::{Comparators, Math, Op};
-pub use crate::expander::object::{Object, TRUE, FALSE, NONE};
+pub use crate::expander::object::{FALSE, NONE, Object, TRUE};
 pub use array_access_expression::*;
 pub use function_call_expression::*;
 pub use infix_expression::*;
@@ -80,8 +80,8 @@ fn evaluate_prefix_expressions(prefix_expression: &PrefixExpression) -> Object {
             } else {
                 panic!("Booleans can only have ! as prefix operators")
             }
-        },
-        Object::None => panic!("Prefix operator cannot be applied on object type none")
+        }
+        Object::None => panic!("Prefix operator cannot be applied on object type none"),
     }
 }
 
@@ -130,21 +130,25 @@ fn evaluate_infix_expression(infix_expression: &InfixExpression) -> Object {
             }
         }
         Object::None => {
-            if !(infix_expression.operator.string() == "==" && infix_expression.operator.string() == "!=") {
-                panic!("Object type none cannot be operated with object type {}", right_expression_evaluated.get_type())
+            if !(infix_expression.operator.string() == "=="
+                && infix_expression.operator.string() == "!=")
+            {
+                panic!(
+                    "Object type none cannot be operated with object type {}",
+                    right_expression_evaluated.get_type()
+                )
             }
 
             match right_expression_evaluated {
                 Object::None => TRUE,
                 _ => FALSE,
             }
-        },
+        }
     }
 }
 
 impl Expression {
     pub fn evaluate(&self) -> Object {
-        println!("evaluating expression {}", self.token_literal());
         match self {
             Self::Prefix(prefix_expression) => evaluate_prefix_expressions(prefix_expression),
             Self::OperatorInfix(infix_expression) => evaluate_infix_expression(infix_expression),

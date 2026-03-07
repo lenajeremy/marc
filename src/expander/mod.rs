@@ -5,3 +5,4 @@ pub mod parselets;
 pub mod parser;
 pub mod precedence;
 pub mod token;
+pub mod environment;

@@ -1,4 +1,5 @@
 use crate::expander::ast::{Node, statement::ReturnStatement};
+use crate::expander::environment::Environment;
 
 pub struct FunctionDefinitionStatement {
     name: String,

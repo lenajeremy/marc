@@ -1,3 +1,4 @@
+use crate::expander::parselets::boolean_parselet::BooleanParselet;
 use crate::expander::{
     ast::{
         Document, MarcNode, Node,
@@ -19,7 +20,6 @@ use crate::expander::{
 };
 use std::collections::HashMap;
 use std::panic;
-use crate::expander::parselets::boolean_parselet::BooleanParselet;
 
 pub struct Parser {
     curr_token: Token,
@@ -135,13 +135,9 @@ impl Parser {
             TT::LeftDoubleBrace => {
                 self.advance_token();
                 MarcNode::Expression(self.parse_expression(0))
-            },
-            TT::True => {
-                MarcNode::Expression(Box::new(Expression::True))
-            },
-            TT::False => {
-                MarcNode::Expression(Box::new(Expression::False))
-            },
+            }
+            TT::True => MarcNode::Expression(Box::new(Expression::True)),
+            TT::False => MarcNode::Expression(Box::new(Expression::False)),
             _ => MarcNode::Expression(Box::new(Expression::Empty)),
         };
         self.advance_token();
@@ -399,13 +395,7 @@ impl Parser {
 
     fn parse_block_node(&mut self) -> Box<MarcNode> {
         match self.curr_token.token_type {
-            TT::Text => {
-                let text = self.curr_token.literal.clone();
-                let node = self.parse_text_as_node(&text);
-                self.advance_token();
-                node
-            }
-            TT::NewLine => {
+            TT::Text | TT::NewLine => {
                 let text = self.curr_token.literal.clone();
                 let node = self.parse_text_as_node(&text);
                 self.advance_token();

@@ -50,7 +50,7 @@ impl Node for MarcNode {
     fn as_any(self: Box<Self>) -> Box<dyn std::any::Any> {
         self
     }
-} 
+}
 
 pub struct Document {
     nodes: Vec<Box<dyn Node>>,
