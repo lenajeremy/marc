@@ -1,10 +1,11 @@
+use crate::expander::ast::MarcNode;
 use crate::expander::ast::{Node, statement::ReturnStatement};
 use crate::expander::environment::Environment;
 
 pub struct FunctionDefinitionStatement {
     name: String,
     params: Vec<String>,
-    body: Vec<Box<dyn Node>>,
+    body: Vec<Box<MarcNode>>,
     return_statement: Option<ReturnStatement>,
 }
 
@@ -12,7 +13,7 @@ impl FunctionDefinitionStatement {
     pub fn new(
         name: String,
         params: Vec<String>,
-        body: Vec<Box<dyn Node>>,
+        body: Vec<Box<MarcNode>>,
         return_statement: Option<ReturnStatement>,
     ) -> Self {
         Self {
@@ -48,7 +49,7 @@ impl Node for FunctionDefinitionStatement {
     }
 
     fn translate(&self, _env: &mut Environment) -> String {
-        self.token_literal()
+        "".to_string()
     }
 
     fn as_any(self: Box<Self>) -> Box<dyn std::any::Any> {

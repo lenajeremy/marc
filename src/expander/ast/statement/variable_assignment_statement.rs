@@ -30,7 +30,7 @@ impl Node for VariableAssignmentStatement {
         let expression_result = self.value.evaluate(env);
         env.set(self.identifier.clone(), expression_result);
 
-        self.token_literal()
+        "".to_string() // no visible text output should be returned after assigning a variable
     }
 
     fn as_any(self: Box<Self>) -> Box<dyn std::any::Any> {

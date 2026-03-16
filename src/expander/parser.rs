@@ -1,3 +1,5 @@
+use crate::expander::ast::marcblocks::BlockBlock;
+use crate::expander::ast::statement::ImportStatement;
 use crate::expander::parselets::boolean_parselet::BooleanParselet;
 use crate::expander::{
     ast::{
@@ -27,6 +29,7 @@ pub struct Parser {
     lexer: Lexer,
     prefix_parselets: HashMap<TT, &'static dyn PrefixParselet>,
     infix_parselets: HashMap<TT, &'static dyn InfixParselet>,
+    in_programming_context: bool,
 }
 
 static VARIABLE_ACCESS_PARSELET: VariableAccessParselet = VariableAccessParselet;
@@ -64,6 +67,7 @@ impl Parser {
             lexer,
             prefix_parselets: HashMap::new(),
             infix_parselets: HashMap::new(),
+            in_programming_context: false,
         };
 
         parser.advance_token();
@@ -106,6 +110,10 @@ impl Parser {
     }
 
     fn parse(&mut self) -> Box<MarcNode> {
+        if self.in_programming_context {
+            return self.parse_block_node();
+        }
+
         let marcnode = match self.curr_token.token_type {
             TT::Text | TT::NewLine => {
                 MarcNode::Text(TextNode::new(self.curr_token.literal.clone()))
@@ -125,9 +133,13 @@ impl Parser {
                         let if_block = self.parse_if_block();
                         MarcNode::If(if_block)
                     }
-                    TT::Fn => {
-                        let function_definition = self.parse_fn_block();
-                        MarcNode::FunctionDefinition(function_definition)
+                    // TT::Fn => {
+                    //     let function_definition = self.parse_fn_block();
+                    //     MarcNode::FunctionDefinition(function_definition)
+                    // }
+                    TT::Block => {
+                        let block_block = self.parse_block_block();
+                        MarcNode::BlockBlock(block_block)
                     }
                     _ => MarcNode::Expression(Box::new(Expression::Empty)),
                 }
@@ -264,7 +276,7 @@ impl Parser {
         if_block
     }
 
-    fn parse_import_statement(&mut self) -> crate::expander::ast::statement::ImportStatement {
+    fn parse_import_statement(&mut self) -> ImportStatement {
         self.advance_token(); // move to `import`
         if self.curr_token.token_type != TT::Import {
             panic!("expected `import` after `@`");
@@ -329,29 +341,12 @@ impl Parser {
             self.advance_token();
         }
 
-        let mut body: Vec<Box<dyn Node>> = Vec::new();
+        let mut body: Vec<Box<MarcNode>> = Vec::new();
         let mut return_statement: Option<ReturnStatement> = None;
 
         while !(self.curr_token.token_type == TT::KeywordStart
             && self.next_token.token_type == TT::EndFn)
         {
-            if self.curr_token.token_type == TT::KeywordStart
-                && self.next_token.token_type == TT::Return
-            {
-                self.advance_token(); // move to `return`
-                self.advance_token(); // move to first expression token
-                let return_expression = self.parse_expression(0);
-
-                if self.next_token.token_type != TT::KeywordEnd {
-                    panic!("expected `%}}` after return expression");
-                }
-                self.advance_token(); // move to `%}`
-                self.advance_token(); // move to next token after return block
-
-                return_statement = Some(ReturnStatement::new(return_expression));
-                continue;
-            }
-
             if let Some(return_stmt) = self.try_parse_return_from_text() {
                 return_statement = Some(return_stmt);
                 self.advance_token();
@@ -371,6 +366,35 @@ impl Parser {
         }
 
         FunctionDefinitionStatement::new(name, params, body, return_statement)
+    }
+
+    fn parse_block_block(&mut self) -> BlockBlock {
+        self.advance_token(); // move to `block`
+        if self.curr_token.token_type != TT::Block {
+            panic!("expected `block` after keyword start");
+        }
+
+        self.advance_token(); // move to keyword end
+        if self.curr_token.token_type != TT::KeywordEnd {
+            panic!("expected `%}}` after block")
+        }
+
+        self.advance_token();
+        self.advance_token();
+
+        let mut block_block = BlockBlock::new();
+
+        while self.curr_token.token_type != TT::KeywordStart
+            && self.next_token.token_type != TT::EndBlock
+        {
+            let block_node = self.parse_block_node();
+            if block_node.token_literal() != Expression::Empty.token_literal() {
+                block_block.add_child(block_node);
+            }
+        }
+        self.advance_token();
+
+        block_block
     }
 
     pub fn parse_quoted_string(&mut self, quote_token: TT) -> String {
@@ -394,7 +418,7 @@ impl Parser {
     }
 
     fn parse_block_node(&mut self) -> Box<MarcNode> {
-        match self.curr_token.token_type {
+        let res = match self.curr_token.token_type {
             TT::Text | TT::NewLine => {
                 let text = self.curr_token.literal.clone();
                 let node = self.parse_text_as_node(&text);
@@ -407,7 +431,8 @@ impl Parser {
                 self.advance_token();
                 Box::new(node)
             }
-        }
+        };
+        res
     }
 
     fn parse_text_as_node(&self, text: &str) -> Box<MarcNode> {
@@ -446,13 +471,23 @@ impl Parser {
     }
 
     fn try_parse_expression_from_str(&self, text: &str) -> Option<Box<Expression>> {
-        let expr = text.trim();
+        /*
+         * TODO: This is an interesting situation. I had to do let expr = format!("{text}\n"),
+         * adding a whitespace because for some reason, when is_detailed is set to true for the
+         * lexer, it fails to parse the last token correctly, it only parses correctly when the
+         * last token in is a whitespace character.
+         *
+         * ACTION ITEM: Create a proper fix for this (manually adding a whitespace character
+         * doesn't resolve the underlying issue)
+         */
+        let expr = format!("{text}\n");
         let result = panic::catch_unwind(|| {
-            let mut lexer = Lexer::from(expr);
+            let mut lexer = Lexer::from(expr.as_str());
             lexer.set_detailed(true);
             let mut parser = Parser::new(lexer);
             parser.parse_expression(0)
         });
+
         result.ok()
     }
 

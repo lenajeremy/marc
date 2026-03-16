@@ -41,6 +41,10 @@ impl Lexer {
         self.is_detailed = value;
     }
 
+    pub fn get_detailed(&mut self) -> bool {
+        self.is_detailed
+    }
+
     /// `clean_input` removes only space characters from both ends of each line of the provided
     /// input.
     ///
@@ -87,6 +91,8 @@ impl Lexer {
             "false" => Token::new(TT::False, text, start_line, start_col),
             "true" => Token::new(TT::True, text, start_line, start_col),
             "as" => Token::new(TT::As, text, start_line, start_col),
+            "block" => Token::new(TT::Block, text, start_line, start_col),
+            "endblock" => Token::new(TT::EndBlock, text, start_line, start_col),
             _ => Token::new(TT::Identifier, text, start_line, start_col),
         };
 

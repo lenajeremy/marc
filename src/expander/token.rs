@@ -49,6 +49,8 @@ pub enum TokenType {
     True,
     False,
     As,
+    Block,
+    EndBlock,
 
     // Others
     Dot,
@@ -103,6 +105,8 @@ impl TokenType {
             TokenType::Semicolon => ";".to_string(),
             TokenType::Comma => ",".to_string(),
             TokenType::Return => "return".to_string(),
+            TokenType::Block => "block".to_string(),
+            TokenType::EndBlock => "endblock".to_string(),
         }
     }
 }

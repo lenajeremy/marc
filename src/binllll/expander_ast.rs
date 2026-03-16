@@ -1,4 +1,6 @@
-use md_to_html::expander::{ast::Node, environment::Environment, lexer::Lexer, parser::Parser};
+use md_to_html::expander::{
+    ast::Node, environment::Environment, lexer::Lexer, object::Object, parser::Parser,
+};
 use std::env;
 
 fn main() {

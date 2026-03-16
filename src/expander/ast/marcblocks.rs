@@ -70,7 +70,7 @@ impl Node for IfBlock {
 pub struct ForBlock {
     main_list: Expression,
     variable: VariableAccessExpression,
-    operations: Vec<Box<dyn Node>>,
+    operations: Vec<Box<MarcNode>>,
 }
 
 impl ForBlock {
@@ -82,7 +82,7 @@ impl ForBlock {
         }
     }
 
-    pub fn add_operation(&mut self, node: Box<dyn Node>) {
+    pub fn add_operation(&mut self, node: Box<MarcNode>) {
         self.operations.push(node)
     }
 }
@@ -109,6 +109,44 @@ impl Node for ForBlock {
 
     fn translate(&self, _env: &mut Environment) -> String {
         self.token_literal()
+    }
+
+    fn as_any(self: Box<Self>) -> Box<dyn Any> {
+        self
+    }
+}
+
+pub struct BlockBlock {
+    children: Vec<Box<MarcNode>>,
+}
+
+impl BlockBlock {
+    pub fn new() -> BlockBlock {
+        BlockBlock { children: vec![] }
+    }
+
+    pub fn add_child(&mut self, node: Box<MarcNode>) {
+        self.children.push(node)
+    }
+}
+
+impl Node for BlockBlock {
+    fn token_literal(&self) -> String {
+        let ops_literal = if self.children.is_empty() {
+            "[]".to_string()
+        } else {
+            let inner: String = self
+                .children
+                .iter()
+                .map(|x| x.token_literal() + ",")
+                .collect();
+            format!("[{}]", &inner[..inner.len() - 1])
+        };
+        format!("BlockBlock(children={})", ops_literal)
+    }
+
+    fn translate(&self, env: &mut Environment) -> String {
+        self.children.iter().map(|x| x.translate(env)).collect()
     }
 
     fn as_any(self: Box<Self>) -> Box<dyn Any> {

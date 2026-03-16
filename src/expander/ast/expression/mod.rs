@@ -85,6 +85,7 @@ fn evaluate_prefix_expressions(
                 panic!("Booleans can only have ! as prefix operators")
             }
         }
+        Object::Function(_) => panic!("Prefix operator cannot be applied on object type function"),
         Object::None => panic!("Prefix operator cannot be applied on object type none"),
     }
 }
@@ -148,6 +149,7 @@ fn evaluate_infix_expression(infix_expression: &InfixExpression, env: &mut Envir
                 _ => FALSE,
             }
         }
+        Object::Function(_) => panic!("Infix operators cannot be applied on object type function"),
     }
 }
 

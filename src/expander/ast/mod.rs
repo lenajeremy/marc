@@ -18,9 +18,9 @@ pub enum MarcNode {
     If(marcblocks::IfBlock),
     For(marcblocks::ForBlock),
     Import(statement::ImportStatement),
+    BlockBlock(marcblocks::BlockBlock),
     Text(text_node::TextNode),
     Expression(Box<expression::Expression>),
-    FunctionDefinition(statement::FunctionDefinitionStatement),
     Statement(Box<dyn Node>),
 }
 
@@ -31,9 +31,9 @@ impl Node for MarcNode {
             MarcNode::If(b) => b.token_literal(),
             MarcNode::Text(b) => b.token_literal(),
             MarcNode::Expression(b) => b.token_literal(),
-            MarcNode::FunctionDefinition(b) => b.token_literal(),
             MarcNode::Import(b) => b.token_literal(),
             MarcNode::Statement(b) => b.token_literal(),
+            MarcNode::BlockBlock(b) => b.token_literal(),
         }
     }
 
@@ -43,9 +43,9 @@ impl Node for MarcNode {
             MarcNode::If(b) => b.translate(env),
             MarcNode::Text(b) => b.translate(env),
             MarcNode::Expression(b) => b.translate(env),
-            MarcNode::FunctionDefinition(b) => b.translate(env),
             MarcNode::Import(b) => b.translate(env),
             MarcNode::Statement(b) => b.translate(env),
+            MarcNode::BlockBlock(b) => b.translate(env),
         }
     }
 

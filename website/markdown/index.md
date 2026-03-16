@@ -1,5 +1,6 @@
 # Welcome
 
-My name is Jeremiah Lena, I'm a software engineer at AWS.
- I'm a Rust enthusiast. Learning to make music for fun.
+My name is Jeremiah Lena, I'm a software engineer at AWS. I'm a Rust enthusiast. Learning to make music for fun.
+
+Check out my [resume](./resume.html).
 

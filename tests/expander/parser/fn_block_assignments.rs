@@ -11,7 +11,7 @@ use md_to_html::expander::{
 
 #[test]
 fn test_fn_block_with_assignment_and_return() {
-    let input = "{% fn add(a, b) %}\n    sum = 50 + a * b\n    {% return sum %}\n    {% endfn %}";
+    let input = "{% fn add(a, b) %}\n    sum = 50 + a * b\nreturn sum\n    {% endfn %}";
     let lexer = Lexer::from(input);
     let mut parser = Parser::new(lexer);
     let program = parser.parse_document();

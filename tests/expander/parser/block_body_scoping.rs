@@ -105,3 +105,16 @@ fn test_fn_allows_bare_statements() {
 
     assert_eq!(program.token_literal(), expected.token_literal());
 }
+
+#[test]
+fn test_block_with_statements() {
+    let input = "{% block %}
+age = 20 + 3
+age
+{% endblock %}";
+    let lexer = Lexer::from(input);
+    let mut parser = Parser::new(lexer);
+    let program = parser.parse_document();
+
+    println!("{}", program.token_literal());
+}

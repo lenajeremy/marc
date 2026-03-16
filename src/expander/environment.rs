@@ -13,11 +13,18 @@ impl Environment {
     }
 
     pub fn get(&self, name: &str) -> Object {
-        self.variables.get(name).cloned().unwrap_or(Object::None)
+        match self.variables.get(name) {
+            Some(Object::Integer(value)) => Object::Integer(*value),
+            Some(Object::Boolean(value)) => Object::Boolean(*value),
+            Some(Object::None) => Object::None,
+            Some(Object::Function(_)) => {
+                panic!("function values are not cloneable yet")
+            }
+            None => Object::None,
+        }
     }
 
-    pub fn set(&mut self, name: String, value: Object) -> Object {
+    pub fn set(&mut self, name: String, value: Object) {
         self.variables.insert(name, value);
-        value
     }
 }
